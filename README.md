@@ -32,7 +32,7 @@ This is a simple two-player Connect 4 game implemented in C++. Players take turn
 
 ## Code Structure
 
-- **main.cpp:** Main C++ source code file containing the game logic.
+- **main.cpp:** Main C++ source code starting the game loop.
 - **functions.h:** Header file containing function declarations and constants.
 - **functions.cpp:** Source file containing function implementations.
 - **Game_Table.h:** Header file containing the Game_Table class and its methods.

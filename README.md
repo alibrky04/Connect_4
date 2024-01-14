@@ -9,14 +9,14 @@ This is a simple two-player Connect 4 game implemented in C++. Players take turn
 - Compile the code using the following command:
  
 ```markdown
-  g++ main.cpp -o main
+  g++ Game_Table.cpp functions.cpp main.cpp -o Connect4
 ```
 
 **Run the Game:**
 - Execute the compiled program:
 
 ```markdown
-  ./main
+  ./Connect4
 ```
 
 **Gameplay:**

@@ -1,4 +1,3 @@
-```markdown
 # Connect 4 Game
 
 This is a simple two-player Connect 4 game implemented in C++. Players take turns dropping their colored discs from the top into a vertically suspended grid. The first player to connect four of their discs in a row horizontally, vertically, or diagonally wins the game.
@@ -8,15 +7,17 @@ This is a simple two-player Connect 4 game implemented in C++. Players take turn
 **Compile the Code:**
 - Ensure you have a C++ compiler installed on your system.
 - Compile the code using the following command:
-  ```
+ 
+```markdown
   g++ main.cpp -o main
-  ```
+```
 
 **Run the Game:**
 - Execute the compiled program:
-  ```
+
+```markdown
   ./main
-  ```
+```
 
 **Gameplay:**
 - Players will take turns entering the column number where they want to drop their disc.
@@ -44,4 +45,4 @@ If you would like to contribute to this project, feel free to fork the repositor
 **WARNING!**
 
 This project is still in-process. Because of this, there can be a lot of bugs or missing features!
-```
+

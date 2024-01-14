@@ -17,15 +17,15 @@ void p2_game_loop()
 
 	do {
 		if (player == 1)
-			player = 2;
+			player = 2; // Changes player turn to the second player
 		else
-			player = 1;
+			player = 1; // Changes player turn to the first player
 
 		game_table.printTable();
 
 		if (player == 1 || player == 2) {
-			chosen_column = columnQuestion(player, game_table.getTable());
-			game_table.setTable(putPiece(game_table.getTable(), chosen_column, &row, player));
+			chosen_column = columnQuestion(player, game_table.getTable()); // Gets the column from the player
+			game_table.setTable(putPiece(game_table.getTable(), chosen_column, &row, player)); // Changes the table according to the chosen column
 		}
 		else {
 			cout << "Player count is broken!" << endl;
@@ -33,7 +33,7 @@ void p2_game_loop()
 		}
 
 		std::cout << std::endl;
-	} while (!isGameEnded(game_table.getTable(), row, chosen_column, player));
+	} while (!isGameEnded(game_table.getTable(), row, chosen_column, player)); // Checks if the game has ended
 
 	game_table.printTable();
 
@@ -42,17 +42,22 @@ void p2_game_loop()
 	cout << "Player " << player << " won!" << endl;
 }
 
+// Main solver function for solving if the game has ended or not
+// Controls for directions of the last put piece
+// Goes to the end of a direction to control all possibilities
 bool isGameEnded(const std::vector<std::vector<int>> Table, const int row, const int column, const int player)
 {
-	int counter = 0, new_row = row, new_column = column;
+	int counter = 0, new_row = row, new_column = column; // counter is for counting the number of pieces, new_row and new_column are for going to the end of a direction
 	const int control_array_row[4] = { 0, -1, -1, -1 }, control_array_column[4] = { -1, 0, -1, 1 }; // row, column, 135 degrees, 45 degrees
 
 	for (int i = 0; i < 4; i++) {
+		// This loop checks if another piece of the player is present in the left (right for 45 degrees) of the piece, if it is changes the index of new_row and new_column
 		for (int k = 0; Table[row + control_array_row[i] + k * control_array_row[i]][column + control_array_column[i] + k * control_array_column[i]] == player; k++) {
 			new_row = row + control_array_row[i] + k * control_array_row[i];
 			new_column = column + control_array_column[i] + k * control_array_column[i];
 		}
 
+		// This loop counts to four if the player's piece is present for any direction, if not resets the counter
 		for (int k = 0; k < MOD; k++) {
 			if (Table[new_row - k * control_array_row[i]][new_column - k * control_array_column[i]] == player) {
 				counter++;
@@ -103,7 +108,7 @@ std::vector <std::vector <int>> putPiece(std::vector<std::vector<int>> Table, in
 {
 	for (int i = ROW; i > 0; i--) {
 		if (Table[i][column] == 0) {
-			*row = i;
+			*row = i; // changes the last put piece's row number for the isGameEnded() function
 			Table[i][column] = player;
 			break;
 		}

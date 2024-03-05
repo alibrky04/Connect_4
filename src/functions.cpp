@@ -8,6 +8,10 @@
 #define ROW 6
 #define COLUMN 7
 #define MOD 4
+#define HUMAN 1
+#define AI 2
+#define TIE 0
+#define CONT 3
 
 using namespace std;
 
@@ -15,7 +19,7 @@ void p2_game_loop()
 {
 	Game_Table game_table;
 
-	int player = 2, chosen_column, row = 0;
+	int player = 2, chosen_column, row = 0, result;
 
 	do {
 		if (player == 1)
@@ -34,30 +38,27 @@ void p2_game_loop()
 			break;
 		}
 
-		std::cout << std::endl;
-	} while (!isGameEnded(game_table.getTable(), row, chosen_column, player)); // Checks if the game has ended
+		cout << endl;
+
+		result = isGameEnded(game_table.getTable(), row, chosen_column, player);
+	} while (result == CONT); // Checks if the game has ended
 
 	game_table.printTable();
 
 	cout << endl;
 
-	for (int k = 1; k <= COLUMN; k++) {
-		if (!isColumnFree(k, game_table.getTable())) {
-			cout << "It's a tie!" << endl;
-			break;
-		}
-		else if (k + 1 == 8) {
-			cout << "Player " << player << " won!" << endl;
-			break;
-		}
-		
+	if(result == TIE){
+		cout << "it's a tie!" << endl;
+	}
+	else{
+		cout << "Player " << result << " won!" << endl;
 	}
 }
 
 // Main solver function for solving if the game has ended or not
 // Controls for directions of the last put piece
 // Goes to the end of a direction to control all possibilities
-bool isGameEnded(const std::vector<std::vector<int>> Table, const int row, const int column, const int player)
+int isGameEnded(const std::vector<std::vector<int>> Table, const int row, const int column, const int player)
 {
 	int counter = 0, new_row = row, new_column = column; // counter is for counting the number of pieces, new_row and new_column are for going to the end of a direction
 	const int control_array_row[4] = { 0, -1, -1, -1 }, control_array_column[4] = { -1, 0, -1, 1 }; // row, column, 135 degrees, 45 degrees
@@ -79,7 +80,7 @@ bool isGameEnded(const std::vector<std::vector<int>> Table, const int row, const
 			}
 
 			if (counter == MOD) {
-				return true;
+				return player;
 			}
 		}
 
@@ -89,14 +90,14 @@ bool isGameEnded(const std::vector<std::vector<int>> Table, const int row, const
 
 	for (int k = 1; k <= COLUMN; k++) {
 		if (isColumnFree(k, Table)) {
-			return false;
+			return CONT;
 		}
 		else if (k + 1 == 8) {
-			return true;
+			return TIE;
 		}
 	}
 
-	return false;
+	return CONT;
 }
 
 int columnQuestion(int player, const std::vector<std::vector<int>> Table)
@@ -138,61 +139,114 @@ std::vector <std::vector <int>> putPiece(std::vector<std::vector<int>> Table, in
 	return Table;
 }
 
+int minimax(std::vector<std::vector<int>> Table, int depth, int player, int c, int r)
+{
+    const int scores[3] = { 0, -1, 1 }; // Check the pointing system. Might be wrong.
+
+    int result = isGameEnded(Table, r, c, player);
+    int score, move;
+    
+    if (result != CONT) {
+        score = scores[result];
+        return score;
+    }
+
+    if(player == AI){
+        int bestScore = INT_MIN;
+
+        for(move = 1; move < 8; move++){
+            if(isColumnFree(move, Table)){
+                vector<vector<int>> newTable = putPiece(Table, move, &r, HUMAN);
+                score = minimax(newTable, depth + 1, HUMAN, move, r);
+                bestScore = max(score, bestScore);
+            }
+        }
+
+        return bestScore;
+    }
+    else {
+        int bestScore = INT_MAX;
+
+        for(move = 1; move < 8; move++){
+            if(isColumnFree(move, Table)){
+                vector<vector<int>> newTable = putPiece(Table, move, &r, AI);
+                score = minimax(newTable, depth + 1, AI, move, r);
+                bestScore = min(score, bestScore);
+            }
+        }
+
+        return bestScore;
+    }
+}
+
 void ai_game_loop()
 {
-	std::srand(std::time(nullptr));
+	srand(time(NULL));
 
 	Game_Table game_table;
 
-	const int human = 1, ai = 2;
-	int player = 2, chosen_column, row = 0;
+	int player = AI, chosen_column, row = 0, result;
 
 	do {
-		if (player == 1)
-			player = 2; // Changes player turn to the ai
+		if (player == HUMAN)
+			player = AI; // Changes player turn to the ai
 		else
-			player = 1; // Changes player turn to the human
+			player = HUMAN; // Changes player turn to the human
 
 		game_table.printTable();
 
-		if (player == 1) {
+		if (player == HUMAN) {
 			chosen_column = columnQuestion(player, game_table.getTable()); // Gets the column from the player
 			game_table.setTable(putPiece(game_table.getTable(), chosen_column, &row, player)); // Changes the table according to the chosen column
 		}
-		else if (player == 2) {
-			do{
-				chosen_column = 1 + std::rand() / ((RAND_MAX + 1u) / 7);	
-			}while (!isColumnFree(chosen_column, game_table.getTable()));
+		else if (player == AI) {
+			int bestScore = INT_MIN, bestMove, score;
 
+			for(chosen_column = 1; chosen_column < 8; chosen_column++){
+				if(isColumnFree(chosen_column, game_table.getTable())){
+					vector<vector<int>> newTable = putPiece(game_table.getTable(), chosen_column, &row, player);
+					score = minimax(newTable, 0, player, chosen_column, row);
+
+					if(score > bestScore){
+						bestScore = score;
+						bestMove = chosen_column;
+					}
+				}
+			}
+
+			chosen_column = bestMove;
 			game_table.setTable(putPiece(game_table.getTable(), chosen_column, &row, player));
 		}
-		
 		else {
 			cout << "Player count is broken!" << endl;
 			break;
 		}
 
 		cout << endl;
-	} while (!isGameEnded(game_table.getTable(), row, chosen_column, player)); // Checks if the game has ended
+
+		result = isGameEnded(game_table.getTable(), row, chosen_column, player);
+	} while (result == CONT); // Checks if the game has ended
 
 	game_table.printTable();
 
 	cout << endl;
 
-	for (int k = 1, i = 0; k <= COLUMN; k++) {
-		if (isColumnFree(k, game_table.getTable())) {
-			break;
-		}
-		else if(k + 1 == 8) {
-			cout << "It's a tie!" << endl;
-			return;
-		}
-	}
-
-	if (player == 1) {
+	switch (result)
+	{
+	case TIE:
+		cout << "It's a tie!" << endl;
+		break;
+	
+	case HUMAN:
 		cout << "Player won!" << endl;
-	}
-	else {
+		break;
+
+	case AI:
 		cout << "AI won!" << endl;
+		break;
+
+	default:
+		cout << "System Error!" << endl;
+		break;
 	}
 }

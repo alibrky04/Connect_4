@@ -139,15 +139,15 @@ std::vector <std::vector <int>> putPiece(std::vector<std::vector<int>> Table, in
 	return Table;
 }
 
-int minimax(std::vector<std::vector<int>> Table, int depth, int player, int c, int r)
+int minimax(std::vector<std::vector<int>> Table, int depth, int player, int c, int r, int alpha, int beta)
 {
-    const int scores[3] = { 0, -1, 1 }; // Check the pointing system. Might be wrong.
+    const int scores[3] = { 0, -100, 100 }; // Check the pointing system. Might be wrong.
 
     int result = isGameEnded(Table, r, c, player);
     int score, move;
     
     if (result != CONT) {
-        score = scores[result];
+		score = scores[result];
         return score;
     }
 
@@ -157,8 +157,11 @@ int minimax(std::vector<std::vector<int>> Table, int depth, int player, int c, i
         for(move = 1; move < 8; move++){
             if(isColumnFree(move, Table)){
                 vector<vector<int>> newTable = putPiece(Table, move, &r, HUMAN);
-                score = minimax(newTable, depth + 1, HUMAN, move, r);
+                score = minimax(newTable, depth + 1, HUMAN, move, r, alpha, beta);
                 bestScore = max(score, bestScore);
+				alpha = max(bestScore, alpha);
+
+				if (beta <= alpha) { break; }
             }
         }
 
@@ -170,8 +173,12 @@ int minimax(std::vector<std::vector<int>> Table, int depth, int player, int c, i
         for(move = 1; move < 8; move++){
             if(isColumnFree(move, Table)){
                 vector<vector<int>> newTable = putPiece(Table, move, &r, AI);
-                score = minimax(newTable, depth + 1, AI, move, r);
+                score = minimax(newTable, depth + 1, AI, move, r, alpha, beta);
                 bestScore = min(score, bestScore);
+
+				beta = min(bestScore, beta);
+
+				if (beta <= alpha) { break; }
             }
         }
 
@@ -205,7 +212,7 @@ void ai_game_loop()
 			for(chosen_column = 1; chosen_column < 8; chosen_column++){
 				if(isColumnFree(chosen_column, game_table.getTable())){
 					vector<vector<int>> newTable = putPiece(game_table.getTable(), chosen_column, &row, player);
-					score = minimax(newTable, 0, player, chosen_column, row);
+					score = minimax(newTable, 0, player, chosen_column, row, INT_MIN, INT_MAX);
 
 					if(score > bestScore){
 						bestScore = score;

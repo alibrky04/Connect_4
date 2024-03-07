@@ -17,7 +17,7 @@ public:
 
 	int getColumnNumber(); // Method that returns COLUMN constant
 
-	void printTable(); // Method that prints out the Table attribute to the screen 
+	void printTable(int gamemode); // Method that prints out the Table attribute to the screen 
 
 	~Game_Table(); // Destructor for the class
 };

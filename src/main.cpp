@@ -6,5 +6,5 @@
 
 int main(int argc, char* argv[])
 {
-    p2_game_loop();
+    aiGameLoop();
 }

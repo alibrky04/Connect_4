@@ -12,12 +12,15 @@
 #define AI 2
 #define TIE 0
 #define CONT 3
+#define MAX_SPACE_TO_WIN 3
 
 using namespace std;
 
-void p2_game_loop()
+void p2GameLoop()
 {
 	Game_Table game_table;
+
+	int gamemode = 1;
 
 	int player = 2, chosen_column, row = 0, result;
 
@@ -27,7 +30,7 @@ void p2_game_loop()
 		else
 			player = 1; // Changes player turn to the first player
 
-		game_table.printTable();
+		game_table.printTable(gamemode);
 
 		if (player == 1 || player == 2) {
 			chosen_column = columnQuestion(player, game_table.getTable()); // Gets the column from the player
@@ -43,7 +46,7 @@ void p2_game_loop()
 		result = isGameEnded(game_table.getTable(), row, chosen_column, player);
 	} while (result == CONT); // Checks if the game has ended
 
-	game_table.printTable();
+	game_table.printTable(gamemode);
 
 	cout << endl;
 
@@ -63,7 +66,7 @@ int isGameEnded(const std::vector<std::vector<int>> Table, const int row, const 
 	int counter = 0, new_row = row, new_column = column; // counter is for counting the number of pieces, new_row and new_column are for going to the end of a direction
 	const int control_array_row[4] = { 0, -1, -1, -1 }, control_array_column[4] = { -1, 0, -1, 1 }; // row, column, 135 degrees, 45 degrees
 
-	for (int i = 0; i < 4; i++) {
+	for (int i = 0; i < MOD; i++) {
 		// This loop checks if another piece of the player is present in the left (right for 45 degrees) of the piece, if it is changes the index of new_row and new_column
 		for (int k = 0; Table[row + control_array_row[i] + k * control_array_row[i]][column + control_array_column[i] + k * control_array_column[i]] == player; k++) {
 			new_row = row + control_array_row[i] + k * control_array_row[i];
@@ -100,7 +103,7 @@ int isGameEnded(const std::vector<std::vector<int>> Table, const int row, const 
 	return CONT;
 }
 
-int columnQuestion(int player, const std::vector<std::vector<int>> Table)
+int columnQuestion(const int player, const std::vector<std::vector<int>> Table)
 {
 	int column_choice;
 
@@ -116,7 +119,7 @@ int columnQuestion(int player, const std::vector<std::vector<int>> Table)
 	return column_choice;
 }
 
-bool isColumnFree(int column, const std::vector<std::vector<int>> Table)
+bool isColumnFree(const int column, const std::vector<std::vector<int>> Table)
 {
 	for (int i = 1; i <= ROW; i++) {
 		if (Table[i][column] == 0) {
@@ -126,7 +129,7 @@ bool isColumnFree(int column, const std::vector<std::vector<int>> Table)
 	return false;
 }
 
-std::vector <std::vector <int>> putPiece(std::vector<std::vector<int>> Table, int column, int* row, int player)
+std::vector <std::vector <int>> putPiece(std::vector<std::vector<int>> Table, const int column, int* row, const int player)
 {
 	for (int i = ROW; i > 0; i--) {
 		if (Table[i][column] == 0) {
@@ -139,60 +142,15 @@ std::vector <std::vector <int>> putPiece(std::vector<std::vector<int>> Table, in
 	return Table;
 }
 
-int minimax(std::vector<std::vector<int>> Table, int depth, int player, int c, int r, int alpha, int beta)
-{
-    const int scores[3] = { 0, -100, 100 }; // Check the pointing system. Might be wrong.
-
-    int result = isGameEnded(Table, r, c, player);
-    int score, move;
-    
-    if (result != CONT) {
-		score = scores[result];
-        return score;
-    }
-
-    if(player == AI){
-        int bestScore = INT_MIN;
-
-        for(move = 1; move < 8; move++){
-            if(isColumnFree(move, Table)){
-                vector<vector<int>> newTable = putPiece(Table, move, &r, HUMAN);
-                score = minimax(newTable, depth + 1, HUMAN, move, r, alpha, beta);
-                bestScore = max(score, bestScore);
-				alpha = max(bestScore, alpha);
-
-				if (beta <= alpha) { break; }
-            }
-        }
-
-        return bestScore;
-    }
-    else {
-        int bestScore = INT_MAX;
-
-        for(move = 1; move < 8; move++){
-            if(isColumnFree(move, Table)){
-                vector<vector<int>> newTable = putPiece(Table, move, &r, AI);
-                score = minimax(newTable, depth + 1, AI, move, r, alpha, beta);
-                bestScore = min(score, bestScore);
-
-				beta = min(bestScore, beta);
-
-				if (beta <= alpha) { break; }
-            }
-        }
-
-        return bestScore;
-    }
-}
-
-void ai_game_loop()
+void aiGameLoop()
 {
 	srand(time(NULL));
 
 	Game_Table game_table;
 
-	int player = AI, chosen_column, row = 0, result;
+	int gamemode = 2;
+
+	int player = HUMAN, chosen_column, row = 0, result;
 
 	do {
 		if (player == HUMAN)
@@ -200,7 +158,7 @@ void ai_game_loop()
 		else
 			player = HUMAN; // Changes player turn to the human
 
-		game_table.printTable();
+		game_table.printTable(gamemode);
 
 		if (player == HUMAN) {
 			chosen_column = columnQuestion(player, game_table.getTable()); // Gets the column from the player
@@ -212,7 +170,7 @@ void ai_game_loop()
 			for(chosen_column = 1; chosen_column < 8; chosen_column++){
 				if(isColumnFree(chosen_column, game_table.getTable())){
 					vector<vector<int>> newTable = putPiece(game_table.getTable(), chosen_column, &row, player);
-					score = minimax(newTable, 0, player, chosen_column, row, INT_MIN, INT_MAX);
+					score = minimax(newTable, 8, player, chosen_column, row, INT_MIN, INT_MAX);
 
 					if(score > bestScore){
 						bestScore = score;
@@ -234,7 +192,7 @@ void ai_game_loop()
 		result = isGameEnded(game_table.getTable(), row, chosen_column, player);
 	} while (result == CONT); // Checks if the game has ended
 
-	game_table.printTable();
+	game_table.printTable(gamemode);
 
 	cout << endl;
 
@@ -256,4 +214,130 @@ void ai_game_loop()
 		cout << "System Error!" << endl;
 		break;
 	}
+}
+
+int minimax(std::vector<std::vector<int>> Table, int depth, const int player, const int c, int r, int alpha, int beta)
+{
+    int result = isGameEnded(Table, r, c, player);
+    int score, move;
+    
+    if (result != CONT  || depth == 0) {
+		if (result != CONT) {
+			if (result == HUMAN) { score = INT_MIN; }
+			else if (result == AI) { score = INT_MAX; }
+			else { score = 0; }
+		}
+		else { score = evaluateMove(Table, c, player); }
+
+        return score;
+    }
+
+    if(player == AI){
+        int bestScore = INT_MIN;
+
+        for(move = 1; move <= COLUMN ; move++){
+            if(isColumnFree(move, Table)){
+                vector<vector<int>> newTable = putPiece(Table, move, &r, HUMAN);
+                score = minimax(newTable, depth - 1, HUMAN, move, r, alpha, beta);
+                bestScore = max(score, bestScore);
+				alpha = max(bestScore, alpha);
+
+				if (beta <= alpha) { break; }
+            }
+        }
+
+        return bestScore;
+    }
+    else {
+        int bestScore = INT_MAX;
+
+        for(move = 1; move <= COLUMN; move++){
+            if(isColumnFree(move, Table)){
+                vector<vector<int>> newTable = putPiece(Table, move, &r, AI);
+                score = minimax(newTable, depth - 1, AI, move, r, alpha, beta);
+                bestScore = min(score, bestScore);
+
+				beta = min(bestScore, beta);
+
+				if (beta <= alpha) { break; }
+            }
+        }
+
+        return bestScore;
+    }
+}
+
+int evaluateMove(const std::vector<std::vector<int>> Table, const int col, const int player) {
+    int score = 0;
+
+	for (int i = 3; i < 6; i++) {
+		for (int k = ROW; k > 0; k--) {
+			if (Table[k][i] == player){
+				if (i == 3) {score += 3;}
+				else { score += 2; }
+			}
+		}
+	}
+
+	// Horizontal pieces
+	for (int i = 1; i <= COLUMN -  MAX_SPACE_TO_WIN; i++) {
+		for (int k = 1; k <= ROW; k++) {
+			int adjacent_pieces[4] = 	{Table[k][i], Table[k][i + 1],
+										Table[k][i + 2], Table[k][i + 3]};
+			score += evaluateAdjacents(adjacent_pieces, player);
+		}
+	}
+
+	// Vertical pieces
+	for (int i = 1; i <= COLUMN; i++) {
+		for (int k = 1; k <= ROW - MAX_SPACE_TO_WIN; k++) {
+			int adjacent_pieces[4] = 	{Table[k][i], Table[k + 1][i],
+										Table[k + 2][i], Table[k + 3][i]};
+			score += evaluateAdjacents(adjacent_pieces, player);
+		}
+	}
+
+	// Diagonal upwards pieces
+	for (int i = 1; i <= COLUMN -  MAX_SPACE_TO_WIN; i++) {
+		for (int k = 1; k <= ROW - MAX_SPACE_TO_WIN; k++) {
+			int adjacent_pieces[4] = 	{Table[k][i], Table[k + 1][i + 1],
+										Table[k + 2][i + 2], Table[k + 3][i + 3]};
+			score += evaluateAdjacents(adjacent_pieces, player);
+		}
+	}
+
+	// Diagonal downwards pieces
+	for (int i = 1; i <= COLUMN -  MAX_SPACE_TO_WIN; i++) {
+		for (int k = MAX_SPACE_TO_WIN + 1; k <= ROW; k++) {
+			int adjacent_pieces[4] = 	{Table[k][i], Table[k - 1][i + 1],
+										Table[k - 2][i + 2], Table[k - 3][i + 3]};
+			score += evaluateAdjacents(adjacent_pieces, player);
+		}
+	}
+
+    return score;
+}
+
+int evaluateAdjacents(const int* adjacentPieces, const int player) {
+	int opponent = AI;
+
+	if (player == AI) { opponent = HUMAN; }
+
+	int score = 0, playerPieces = 0, emptySpaces = 0, opponentPieces = 0;
+
+	for (int i = 0; i < 4; i++) {
+		if (adjacentPieces[i] == player) { playerPieces++; }
+		else if(adjacentPieces[i] == 0) { emptySpaces++; }
+		else if (adjacentPieces[i] == opponent) { opponentPieces++; }
+	}
+
+	if (playerPieces == 4) { score += 9999; }
+	else if (playerPieces == 3 && emptySpaces == 1) { score += 100; }
+	else if ( playerPieces == 2 && emptySpaces == 2	) { score += 10; }
+
+	if (opponentPieces == 4) { score -= 9999; }
+	else if (opponentPieces == 3 && emptySpaces == 1) { score -= 100; }
+	else if (opponentPieces == 2 && emptySpaces == 2	) { score -= 10; }
+
+    return score;
 }

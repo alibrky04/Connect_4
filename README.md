@@ -1,6 +1,6 @@
 # Connect 4 Game
 
-This is a simple two-player Connect 4 game implemented in C++. Players take turns dropping their colored discs from the top into a vertically suspended grid. The first player to connect four of their discs in a row horizontally, vertically, or diagonally wins the game.
+This is a simple Connect 4 game implemented in C++. Players take turns dropping their colored discs from the top into a vertically suspended grid. The first player to connect four of their discs in a row horizontally, vertically, or diagonally wins the game.
 
 ## How to Play
 
@@ -28,15 +28,18 @@ This is a simple two-player Connect 4 game implemented in C++. Players take turn
 
 - **Simple and Intuitive Interface:** The game has a straightforward console interface for ease of use.
 - **Two-Player Mode:** Play against a friend on the same computer.
+- **AI Mode** Play against a AI that will challenge you to a medium level difficulty battle.
 - **Winning Conditions:** The game detects and announces the winner when four discs are connected.
 
 ## Code Structure
 
 - **main.cpp:** Main C++ source code starting the game loop.
-- **functions.h:** Header file containing function declarations and constants.
-- **functions.cpp:** Source file containing function implementations.
 - **Game_Table.h:** Header file containing the Game_Table class and its methods.
 - **Game_Table.cpp:** Source file containing Game_Table class implementation.
+- **GameController.h** Header file containing the GameController class and its methods.
+- **GameController.cpp** Source file containing GameController class implementation.
+- **SDLController.h** Header file containing the SDLController class and its methods.
+- **SDLController.cpp** Source file containing SDLController class implementation.
 
 ## Contributing
 
@@ -44,5 +47,5 @@ If you would like to contribute to this project, feel free to fork the repositor
 
 **WARNING!**
 
-This project is still in-process. Because of this, there can be a lot of bugs or missing features!
+This project is still work-in-process. Because of this, there can be a lot of bugs or missing features!
 

@@ -2,8 +2,8 @@
 #include <vector>
 #include <cstdlib>
 #include <ctime>
-#include "functions.h"
 #include "Game_Table.h"
+#include "GameController.h"
 
 #define ROW 6
 #define COLUMN 7
@@ -16,9 +16,14 @@
 
 using namespace std;
 
-void p2GameLoop()
+GameController::GameController()
 {
-	Game_Table game_table;
+
+}
+
+void GameController::p2GameLoop()
+{
+    Game_Table game_table;
 
 	int gamemode = 1;
 
@@ -61,9 +66,9 @@ void p2GameLoop()
 // Main solver function for solving if the game has ended or not
 // Controls for directions of the last put piece
 // Goes to the end of a direction to control all possibilities
-int isGameEnded(const std::vector<std::vector<int>> Table, const int row, const int column, const int player)
+int GameController::isGameEnded(const std::vector<std::vector<int>> Table, const int row, const int column, const int player)
 {
-	int counter = 0, new_row = row, new_column = column; // counter is for counting the number of pieces, new_row and new_column are for going to the end of a direction
+    int counter = 0, new_row = row, new_column = column; // counter is for counting the number of pieces, new_row and new_column are for going to the end of a direction
 	const int control_array_row[4] = { 0, -1, -1, -1 }, control_array_column[4] = { -1, 0, -1, 1 }; // row, column, 135 degrees, 45 degrees
 
 	for (int i = 0; i < MOD; i++) {
@@ -103,25 +108,25 @@ int isGameEnded(const std::vector<std::vector<int>> Table, const int row, const 
 	return CONT;
 }
 
-int columnQuestion(const int player, const std::vector<std::vector<int>> Table)
+int GameController::columnQuestion(const int player, const std::vector<std::vector<int>> Table)
 {
-	int column_choice;
+    int column_choice;
 
 	do {
 		cout << "Where would you want to drop your piece? You are player " << player << endl;
 		cout << "Your Choice: ";
 		cin >> column_choice;
 		if (!isColumnFree(column_choice, Table)) {
-			cout << column_choice << ". column is full!" << endl;
+			cout << endl << column_choice << ". column is full!" << endl << endl;
 		}
 	} while (!isColumnFree(column_choice, Table));
 
 	return column_choice;
 }
 
-bool isColumnFree(const int column, const std::vector<std::vector<int>> Table)
+bool GameController::isColumnFree(const int column, const std::vector<std::vector<int>> Table)
 {
-	for (int i = 1; i <= ROW; i++) {
+    for (int i = 1; i <= ROW; i++) {
 		if (Table[i][column] == 0) {
 			return true;
 		}
@@ -129,9 +134,9 @@ bool isColumnFree(const int column, const std::vector<std::vector<int>> Table)
 	return false;
 }
 
-std::vector <std::vector <int>> putPiece(std::vector<std::vector<int>> Table, const int column, int* row, const int player)
+std::vector<std::vector<int>> GameController::putPiece(std::vector<std::vector<int>> Table, const int column, int *row, const int player)
 {
-	for (int i = ROW; i > 0; i--) {
+    for (int i = ROW; i > 0; i--) {
 		if (Table[i][column] == 0) {
 			*row = i; // changes the last put piece's row number for the isGameEnded() function
 			Table[i][column] = player;
@@ -142,9 +147,9 @@ std::vector <std::vector <int>> putPiece(std::vector<std::vector<int>> Table, co
 	return Table;
 }
 
-void aiGameLoop()
+void GameController::aiGameLoop()
 {
-	srand(time(NULL));
+    srand(time(NULL));
 
 	Game_Table game_table;
 
@@ -181,6 +186,7 @@ void aiGameLoop()
 
 			chosen_column = bestMove;
 			game_table.setTable(putPiece(game_table.getTable(), chosen_column, &row, player));
+			cout << endl << "AI put the piece into the " << chosen_column << ". column" << endl;
 		}
 		else {
 			cout << "Player count is broken!" << endl;
@@ -216,9 +222,9 @@ void aiGameLoop()
 	}
 }
 
-int minimax(std::vector<std::vector<int>> Table, int depth, const int player, const int c, int r, int alpha, int beta)
+int GameController::minimax(const std::vector<std::vector<int>> Table, int depth, const int player, const int c, int r, int alpha, int beta)
 {
-    int result = isGameEnded(Table, r, c, player);
+    const int result = isGameEnded(Table, r, c, player);
     int score, move;
     
     if (result != CONT  || depth == 0) {
@@ -267,9 +273,10 @@ int minimax(std::vector<std::vector<int>> Table, int depth, const int player, co
     }
 }
 
-int evaluateMove(const std::vector<std::vector<int>> Table, const int col, const int player) {
+int GameController::evaluateMove(const std::vector<std::vector<int>> Table, const int col, const int player)
+{
     int score = 0;
-
+/*
 	for (int i = 3; i < 6; i++) {
 		for (int k = ROW; k > 0; k--) {
 			if (Table[k][i] == player){
@@ -278,7 +285,7 @@ int evaluateMove(const std::vector<std::vector<int>> Table, const int col, const
 			}
 		}
 	}
-
+*/
 	// Horizontal pieces
 	for (int i = 1; i <= COLUMN -  MAX_SPACE_TO_WIN; i++) {
 		for (int k = 1; k <= ROW; k++) {
@@ -318,8 +325,9 @@ int evaluateMove(const std::vector<std::vector<int>> Table, const int col, const
     return score;
 }
 
-int evaluateAdjacents(const int* adjacentPieces, const int player) {
-	int opponent = AI;
+int GameController::evaluateAdjacents(const int *adjacentPieces, const int player)
+{
+    int opponent = AI;
 
 	if (player == AI) { opponent = HUMAN; }
 
@@ -340,4 +348,9 @@ int evaluateAdjacents(const int* adjacentPieces, const int player) {
 	else if (opponentPieces == 2 && emptySpaces == 2	) { score -= 10; }
 
     return score;
+}
+
+GameController::~GameController()
+{
+
 }

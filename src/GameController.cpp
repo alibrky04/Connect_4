@@ -5,15 +5,6 @@
 #include "Game_Table.h"
 #include "GameController.h"
 
-#define ROW 6
-#define COLUMN 7
-#define MOD 4
-#define HUMAN 1
-#define AI 2
-#define TIE 0
-#define CONT 3
-#define MAX_SPACE_TO_WIN 3
-
 using namespace std;
 
 GameController::GameController()
@@ -202,24 +193,10 @@ void GameController::aiGameLoop()
 
 	cout << endl;
 
-	switch (result)
-	{
-	case TIE:
-		cout << "It's a tie!" << endl;
-		break;
-	
-	case HUMAN:
-		cout << "Player won!" << endl;
-		break;
-
-	case AI:
-		cout << "AI won!" << endl;
-		break;
-
-	default:
-		cout << "System Error!" << endl;
-		break;
-	}
+	if (result == TIE) { cout << "It's a tie!" << endl; }
+	else if (result == HUMAN) { cout << "Player won!" << endl; }
+	else if (result == AI) { cout << "AI won!" << endl; }
+	else { cout << "System Error!" << endl; }
 }
 
 int GameController::minimax(const std::vector<std::vector<int>> Table, int depth, const int player, const int c, int r, int alpha, int beta)

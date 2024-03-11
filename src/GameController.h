@@ -6,6 +6,14 @@
 
 class GameController {
 private:
+    const int ROW = 6;
+    const int COLUMN = 7;
+    const int MOD = 4;
+    const int HUMAN = 1;
+    const int AI = 2;
+    const int TIE = 0;
+    const int CONT = 3;
+    const int MAX_SPACE_TO_WIN = 3;
 	
 public:
 	GameController(); // Constructor for the class

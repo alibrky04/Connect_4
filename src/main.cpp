@@ -10,19 +10,7 @@ int main(int argc, char* argv[])
     GameController gameController;
     SDLController SDLController;
 
-    if (!SDLController.init()) {
-        printf("Failed to initialize!\n");
-    }
-    else {
-        if (!SDLController.handleEvents()) {
-            printf( "Failed to load media!\n" );
-        }
-        else {
-            SDLController.update();
-        }
-    }
-
-    SDLController.clean();
+    gameController.p2GameLoop();
 
     return 0;
 }

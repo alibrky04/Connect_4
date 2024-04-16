@@ -10,7 +10,19 @@ int main(int argc, char* argv[])
     GameController gameController;
     SDLController SDLController;
 
-    gameController.p2GameLoop();
+    bool quit = true;
+
+    SDLController.init();
+    SDLController.loadMedia();
+
+    while (quit)
+    {
+        quit = SDLController.handleEvents();
+
+        SDLController.render();
+    }
+
+    SDLController.clean();
 
     return 0;
 }

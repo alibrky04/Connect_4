@@ -3,6 +3,7 @@
 
 #include <vector>
 #include "Game_Table.h"
+#include "SDLController.h"
 
 class GameController {
 private:
@@ -16,9 +17,11 @@ private:
     const int MAX_SPACE_TO_WIN = 3;
 	
 public:
+    SDLController SDLController;
+
 	GameController(); // Constructor for the class
 
-	void p2GameLoop(); // Starts game loop, ends when a player loses
+	bool p2GameLoop(); // Starts game loop, ends when a player loses
     
     int isGameEnded(const std::vector<std::vector<int>> Table, const int row, const int column, const int player); // Checks if the game has ended after a move
     

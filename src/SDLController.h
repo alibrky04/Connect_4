@@ -3,30 +3,36 @@
 
 #include <iostream>
 #include <string>
-#include "GameController.h"
-#include <SDL2/SDL.h>
+#include "SDL2/SDL.h"
 #include <SDL2/SDL_image.h>
 
 class SDLController {
 private:
-    const int SCREEN_WIDTH = 1120;
-    const int SCREEN_HEIGHT = 960;
+    const int SCREEN_WIDTH = 560;
+    const int SCREEN_HEIGHT = 480;
 
-    bool isRunning;
+    int lastChosenColumn;
+
     SDL_Window *window = NULL;
     SDL_Renderer* renderer = NULL;
     SDL_Texture* gameBoard = NULL;
 public:
-    GameController gameController;
-
     SDLController();
 
     bool init();
+
     bool handleEvents();
+
     SDL_Texture* loadTexture (std::string path);
+
     bool loadMedia();
+
     void render();
+
     void clean();
+
+    int getLastChosenColumn();
+    void setLastChosenColumn(int newColumn);
     
     ~SDLController();
 };

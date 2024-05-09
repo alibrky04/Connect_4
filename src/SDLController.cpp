@@ -8,7 +8,7 @@
 
 SDLController::SDLController()
 {
-
+    lastChosenColumn = 0;
 }
 
 bool SDLController::init()
@@ -50,9 +50,9 @@ bool SDLController::handleEvents()
         }
         else if (e.type == SDL_MOUSEBUTTONDOWN && e.button.button == SDL_BUTTON_LEFT) {
             int mouseX = e.button.x;
-            int column = mouseX / (SCREEN_WIDTH / COLUMN) + 1;
+            lastChosenColumn = mouseX / (SCREEN_WIDTH / COLUMN) + 1;
 
-            std::cout << "Player chose column: " << column << std::endl;
+            std::cout << "Player chose column: " << lastChosenColumn << std::endl;
 
 
         }
@@ -109,6 +109,10 @@ void SDLController::clean()
 
     SDL_Quit();
 }
+
+int SDLController::getLastChosenColumn(){return lastChosenColumn;}
+
+void SDLController::setLastChosenColumn(int newColumn){lastChosenColumn = newColumn;}
 
 SDLController::~SDLController()
 {

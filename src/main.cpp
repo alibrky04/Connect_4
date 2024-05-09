@@ -8,21 +8,20 @@
 int main(int argc, char* argv[])
 {
     GameController gameController;
-    SDLController SDLController;
 
     bool quit = true;
 
-    SDLController.init();
-    SDLController.loadMedia();
+    gameController.SDLController.init();
+    gameController.SDLController.loadMedia();
 
     while (quit)
     {
-        quit = SDLController.handleEvents();
+        quit = gameController.p2GameLoop();
 
-        SDLController.render();
+        //gameController.SDLController.render();
     }
 
-    SDLController.clean();
+    gameController.SDLController.clean();
 
     return 0;
 }

@@ -4,6 +4,7 @@
 #include <ctime>
 #include "Game_Table.h"
 #include "GameController.h"
+#include "SDLController.h"
 
 using namespace std;
 
@@ -12,35 +13,38 @@ GameController::GameController()
 
 }
 
-void GameController::p2GameLoop()
+bool GameController::p2GameLoop()
 {
     Game_Table game_table;
 
+	bool quit = true;
+
 	int gamemode = 1;
 
-	int player = 2, chosen_column, row = 0, result;
+	int player = 1, chosen_column = 1, row = 0, result = CONT;
 
 	do {
-		if (player == 1)
-			player = 2; // Changes player turn to the second player
-		else
-			player = 1; // Changes player turn to the first player
+		SDLController.render();
 
-		game_table.printTable(gamemode);
-
-		if (player == 1 || player == 2) {
-			chosen_column = columnQuestion(player, game_table.getTable()); // Gets the column from the player
+		if (SDLController.getLastChosenColumn() != 0) {
+			chosen_column = SDLController.getLastChosenColumn(); // Gets the column from the player
 			game_table.setTable(putPiece(game_table.getTable(), chosen_column, &row, player)); // Changes the table according to the chosen column
-		}
-		else {
-			cout << "Player count is broken!" << endl;
-			break;
+			
+			if (player == 1)
+				player = 2; // Changes player turn to the second player
+			else
+				player = 1; // Changes player turn to the first player
+			game_table.printTable(gamemode);
+			cout << endl;
+
+			SDLController.setLastChosenColumn(0);
+
+			result = isGameEnded(game_table.getTable(), row, chosen_column, player);
+			cout << result;
 		}
 
-		cout << endl;
-
-		result = isGameEnded(game_table.getTable(), row, chosen_column, player);
-	} while (result == CONT); // Checks if the game has ended
+		quit = SDLController.handleEvents();
+	} while (result == CONT && quit); // Checks if the game has ended
 
 	game_table.printTable(gamemode);
 
@@ -52,6 +56,8 @@ void GameController::p2GameLoop()
 	else{
 		cout << "Player " << result << " won!" << endl;
 	}
+
+	return false;
 }
 
 // Main solver function for solving if the game has ended or not

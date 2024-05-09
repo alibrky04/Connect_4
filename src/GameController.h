@@ -7,8 +7,6 @@
 
 class GameController {
 private:
-    const int ROW = 6;
-    const int COLUMN = 7;
     const int MOD = 4;
     const int HUMAN = 1;
     const int AI = 2;

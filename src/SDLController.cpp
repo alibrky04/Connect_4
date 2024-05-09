@@ -4,11 +4,21 @@
 #include "GameController.h"
 #include <SDL2/SDL_image.h>
 
-#define COLUMN 7
-
 SDLController::SDLController()
 {
     lastChosenColumn = 0;
+
+    for (int i = 0; i < COLUMN; i++)
+    {
+        availableFirstSpotX[i] = gameBoardX + (columnWidth * i);
+    }
+
+    for (int i = 0; i < ROW; i++)
+    {
+        avalaibleFirstSpotY[i] = SCREEN_HEIGHT - gameBoardY - pieceSize;
+    }
+    
+    pieceCounter = 0;
 }
 
 bool SDLController::init()
@@ -50,11 +60,27 @@ bool SDLController::handleEvents()
         }
         else if (e.type == SDL_MOUSEBUTTONDOWN && e.button.button == SDL_BUTTON_LEFT) {
             int mouseX = e.button.x;
-            lastChosenColumn = mouseX / (SCREEN_WIDTH / COLUMN) + 1;
+            int mouseY = e.button.y;
 
-            std::cout << "Player chose column: " << lastChosenColumn << std::endl;
+            if (mouseX > gameBoardX && mouseX < gameBoardX + gameBoardWidth)
+            {
+                if (mouseY > gameBoardY && mouseY < gameBoardY + gameBoardHeight)
+                {
+                    lastChosenColumn = (mouseX - gameBoardWidth / 4) / columnWidth + 1;
 
+                    gamePieces[pieceCounter].x = availableFirstSpotX[lastChosenColumn - 1];
+                    gamePieces[pieceCounter].y = avalaibleFirstSpotY[lastChosenColumn - 1];
+                    gamePieces[pieceCounter].w = pieceSize;
+                    gamePieces[pieceCounter].h = pieceSize;
 
+                    avalaibleFirstSpotY[lastChosenColumn - 1] -= pieceSize;
+
+                    pieceCounter++;
+
+                    std::cout << "Player chose column: " << lastChosenColumn << std::endl;
+                }
+                
+            }
         }
     }
     return true;
@@ -78,20 +104,52 @@ SDL_Texture* SDLController::loadTexture(std::string path)
     return newTexture;
 }
 
-bool SDLController::loadMedia() {
+bool SDLController::loadMedia()
+{
     gameBoard = loadTexture("images/gameboard(empty).png");
+    yellowPiece = loadTexture("images/connect4_tiles(yellow).png");
+    redPiece = loadTexture("images/connect4_tiles(red).png");
+
     if (gameBoard == NULL) {
         std::cerr << "Failed to load game board texture!" << std::endl;
         return false;
     }
+    else if (yellowPiece == NULL) {
+        std::cerr << "Failed to load yellow piece texture!" << std::endl;
+        return false;
+    }
+    else if (redPiece == NULL) {
+        std::cerr << "Failed to load red piece texture!" << std::endl;
+        return false;
+    }
     return true;
+}
+
+void SDLController::renderGameBoard(int x, int y, int width, int height)
+{
+    SDL_Rect destRect = {x, y, width, height};
+    SDL_RenderCopy(renderer, gameBoard, NULL, &destRect);
+}
+
+void SDLController::renderGameTiles()
+{
+    for (int i = 0; i < pieceCounter; i++)
+    {
+        if(i % 2 == 0) {SDL_RenderCopy(renderer, yellowPiece, NULL, &gamePieces[i]);}
+        else {SDL_RenderCopy(renderer, redPiece, NULL, &gamePieces[i]);}
+        
+    }
 }
 
 void SDLController::render()
 {
     SDL_RenderClear(renderer);
 
-    SDL_RenderCopy(renderer, gameBoard, NULL, NULL);
+    renderGameBoard(gameBoardX, gameBoardY, gameBoardWidth, gameBoardHeight);
+
+    renderGameTiles();
+
+    SDL_SetRenderDrawColor(renderer, 173, 216, 230, SDL_ALPHA_OPAQUE);
 
     SDL_RenderPresent(renderer);
 }
@@ -106,6 +164,12 @@ void SDLController::clean()
 
     SDL_DestroyWindow(window);
     window = NULL;
+
+    SDL_DestroyTexture(yellowPiece);
+    yellowPiece = NULL;
+
+    SDL_DestroyTexture(redPiece);
+    redPiece = NULL;
 
     SDL_Quit();
 }

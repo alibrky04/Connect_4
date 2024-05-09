@@ -17,8 +17,6 @@ int main(int argc, char* argv[])
     while (quit)
     {
         quit = gameController.p2GameLoop();
-
-        //gameController.SDLController.render();
     }
 
     gameController.SDLController.clean();

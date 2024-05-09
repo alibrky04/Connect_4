@@ -28,19 +28,27 @@ bool GameController::p2GameLoop()
 
 		if (SDLController.getLastChosenColumn() != 0) {
 			chosen_column = SDLController.getLastChosenColumn(); // Gets the column from the player
+
+			if (!isColumnFree(chosen_column, game_table.getTable()))
+			{
+				SDLController.setLastChosenColumn(0);
+
+				continue;
+			}
+
 			game_table.setTable(putPiece(game_table.getTable(), chosen_column, &row, player)); // Changes the table according to the chosen column
 			
-			if (player == 1)
-				player = 2; // Changes player turn to the second player
-			else
-				player = 1; // Changes player turn to the first player
 			game_table.printTable(gamemode);
 			cout << endl;
 
 			SDLController.setLastChosenColumn(0);
 
 			result = isGameEnded(game_table.getTable(), row, chosen_column, player);
-			cout << result;
+
+			if (player == 1)
+				player = 2; // Changes player turn to the second player
+			else
+				player = 1; // Changes player turn to the first player
 		}
 
 		quit = SDLController.handleEvents();

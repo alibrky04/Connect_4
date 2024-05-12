@@ -4,7 +4,8 @@
 #include <iostream>
 #include <string>
 #include "SDL2/SDL.h"
-#include <SDL2/SDL_image.h>
+#include "SDL2/SDL_image.h"
+#include "SDL2/SDL_ttf.h"
 
 #define COLUMN 7
 #define ROW 6
@@ -23,15 +24,19 @@ private:
     int lastChosenColumn;
     int availableFirstSpotX[COLUMN];
     int avalaibleFirstSpotY[COLUMN];
-
     int pieceCounter;
+    int mouseColumn;
 
     SDL_Window* window = NULL;
     SDL_Renderer* renderer = NULL;
     SDL_Texture* gameBoard = NULL;
     SDL_Texture* yellowPiece = NULL;
     SDL_Texture* redPiece = NULL;
+    SDL_Texture* cursor = NULL;
     SDL_Rect gamePieces[42];
+
+    TTF_Font* gameFont = NULL;
+    SDL_Texture* textTexture = NULL;
 public:
     SDLController();
 
@@ -39,13 +44,17 @@ public:
 
     bool handleEvents();
 
-    SDL_Texture* loadTexture (std::string path);
+    SDL_Texture* loadTexture(std::string path);
 
     bool loadMedia();
 
-    void renderGameBoard(int x, int y, int width, int height);
+    bool loadFromRenderedText(std::string textureText, SDL_Color textColor);
+
+    void renderGameBoard();
 
     void renderGameTiles();
+
+    void renderCursor();
 
     void render();
 

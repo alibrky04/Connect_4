@@ -9,7 +9,7 @@ This is a simple Connect 4 game implemented in C++. Players take turns dropping 
 - Compile the code using the following command:
  
 ```markdown
-  g++ -I src/include -L src/lib -o main src/main.cpp src/Game_Table.cpp src/GameController.cpp src/SDLController.cpp -lmingw32 -lSDL2main -lSDL2
+  g++ -I src/include -L src/lib -o main src/main.cpp src/Game_Table.cpp src/GameController.cpp src/SDLController.cpp -lmingw32 -lSDL2main -lSDL2 -lSDL2_image -lSDL2_ttf
 ```
 
 **Run the Game:**

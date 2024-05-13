@@ -29,7 +29,7 @@ public:
     
     std::vector <std::vector <int>> putPiece(std::vector<std::vector<int>> Table, const int column, int* row, const int player); // Puts the player's piece into the column they chose
     
-    void aiGameLoop();
+    bool aiGameLoop();
     
     int minimax(const std::vector<std::vector<int>> Table, int depth, const int player, const int c, int r, int alpha, int beta);
     

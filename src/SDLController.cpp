@@ -11,11 +11,8 @@ SDLController::SDLController()
     for (int i = 0; i < COLUMN; i++)
     {
         availableFirstSpotX[i] = gameBoardX + (columnWidth * i);
-    }
-
-    for (int i = 0; i < COLUMN; i++)
-    {
         avalaibleFirstSpotY[i] = SCREEN_HEIGHT - gameBoardY - pieceSize;
+        columnPieceNumber[i] = 0;
     }
     
     pieceCounter = 0;
@@ -46,22 +43,22 @@ bool SDLController::init()
                 success = false;
             }
             else
-			{
-				SDL_SetRenderDrawColor(renderer, 0xFF, 0xFF, 0xFF, 0xFF);
+            {
+                SDL_SetRenderDrawColor(renderer, 0xFF, 0xFF, 0xFF, 0xFF);
 
-				int imgFlags = IMG_INIT_PNG;
-				if(!(IMG_Init(imgFlags) & imgFlags))
-				{
-					printf("SDL_image could not initialize! SDL_image Error: %s\n", IMG_GetError());
-					success = false;
-				}
+                int imgFlags = IMG_INIT_PNG;
+                if(!(IMG_Init(imgFlags) & imgFlags))
+                {
+                    printf("SDL_image could not initialize! SDL_image Error: %s\n", IMG_GetError());
+                    success = false;
+                }
 
-				if(TTF_Init() == -1)
-				{
-					printf("SDL_ttf could not initialize! SDL_ttf Error: %s\n", TTF_GetError());
-					success = false;
-				}
-			}
+                if(TTF_Init() == -1)
+                {
+                    printf("SDL_ttf could not initialize! SDL_ttf Error: %s\n", TTF_GetError());
+                    success = false;
+                }
+            }
         }
     }
 
@@ -85,16 +82,11 @@ bool SDLController::handleEvents()
                 {
                     lastChosenColumn = (mouseX - gameBoardWidth / 4) / columnWidth + 1;
 
-                    gamePieces[pieceCounter].x = availableFirstSpotX[lastChosenColumn - 1];
-                    gamePieces[pieceCounter].y = avalaibleFirstSpotY[lastChosenColumn - 1];
-                    gamePieces[pieceCounter].w = pieceSize;
-                    gamePieces[pieceCounter].h = pieceSize;
-
-                    avalaibleFirstSpotY[lastChosenColumn - 1] -= pieceSize;
-
-                    pieceCounter++;
-
-                    std::cout << "Player chose column: " << lastChosenColumn << std::endl;
+                    if (columnPieceNumber[lastChosenColumn - 1] < ROW)
+                    {
+                        pieceAdded(lastChosenColumn);
+                        std::cout << "Player chose column: " << lastChosenColumn << std::endl;
+                    }
                 }
             }
         }
@@ -115,6 +107,19 @@ bool SDLController::handleEvents()
         }       
     }
     return true;
+}
+
+void SDLController::pieceAdded(int chosenColumn)
+{
+    gamePieces[pieceCounter].x = availableFirstSpotX[chosenColumn - 1];
+    gamePieces[pieceCounter].y = avalaibleFirstSpotY[chosenColumn - 1];
+    gamePieces[pieceCounter].w = pieceSize;
+    gamePieces[pieceCounter].h = pieceSize;
+
+    avalaibleFirstSpotY[chosenColumn - 1] -= pieceSize;
+    columnPieceNumber[chosenColumn - 1]++;
+
+    pieceCounter++;
 }
 
 SDL_Texture* SDLController::loadTexture(std::string path)
@@ -181,9 +186,6 @@ bool SDLController::loadMedia()
 
 bool SDLController::loadFromRenderedText(std::string textureText, SDL_Color textColor)
 {
-    SDL_DestroyTexture(textTexture);
-    textTexture = 0;
-
     SDL_Surface* textSurface = TTF_RenderText_Solid(gameFont, textureText.c_str(), textColor);
     if(textSurface == NULL) {
         std::cerr << "Unable to render text surface! SDL_ttf Error: " << TTF_GetError() << std::endl;
@@ -239,10 +241,6 @@ void SDLController::render()
 
     renderCursor();
 
-    //SDL_Rect textRect = {SCREEN_WIDTH / 2, 0, 300, 75};
-
-    //SDL_RenderCopy(renderer, textTexture, NULL, &textRect);
-
     SDL_SetRenderDrawColor(renderer, 173, 216, 230, SDL_ALPHA_OPAQUE);
 
     SDL_RenderPresent(renderer);
@@ -279,9 +277,9 @@ void SDLController::clean()
     SDL_Quit();
 }
 
-int SDLController::getLastChosenColumn(){return lastChosenColumn;}
+int SDLController::getLastChosenColumn() {return lastChosenColumn;}
 
-void SDLController::setLastChosenColumn(int newColumn){lastChosenColumn = newColumn;}
+void SDLController::setLastChosenColumn(int newColumn) {lastChosenColumn = newColumn;}
 
 SDLController::~SDLController()
 {

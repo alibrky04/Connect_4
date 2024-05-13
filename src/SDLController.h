@@ -12,8 +12,8 @@
 
 class SDLController {
 private:
-    const int SCREEN_WIDTH = 1120;
-    const int SCREEN_HEIGHT = 960;
+    const int SCREEN_WIDTH = 560;
+    const int SCREEN_HEIGHT = 480;
     const int gameBoardWidth = SCREEN_WIDTH / 1.5;
     const int gameBoardHeight = SCREEN_HEIGHT / 1.5;
     const int gameBoardX = (SCREEN_WIDTH - gameBoardWidth) / 2;
@@ -24,6 +24,7 @@ private:
     int lastChosenColumn;
     int availableFirstSpotX[COLUMN];
     int avalaibleFirstSpotY[COLUMN];
+    int columnPieceNumber[COLUMN];
     int pieceCounter;
     int mouseColumn;
 
@@ -44,6 +45,8 @@ public:
 
     bool handleEvents();
 
+    void pieceAdded(int chosenColumn);
+
     SDL_Texture* loadTexture(std::string path);
 
     bool loadMedia();
@@ -63,7 +66,7 @@ public:
     int getLastChosenColumn();
 
     void setLastChosenColumn(int newColumn);
-    
+
     ~SDLController();
 };
 

@@ -152,29 +152,45 @@ std::vector<std::vector<int>> GameController::putPiece(std::vector<std::vector<i
 	return Table;
 }
 
-void GameController::aiGameLoop()
+bool GameController::aiGameLoop()
 {
     srand(time(NULL));
 
 	Game_Table game_table;
 
+	bool quit = true;
+
 	int gamemode = 2;
 
-	int player = HUMAN, chosen_column, row = 0, result;
+	int player = AI, chosen_column, row = 0, result;
 
 	do {
-		if (player == HUMAN)
-			player = AI; // Changes player turn to the ai
-		else
-			player = HUMAN; // Changes player turn to the human
+		SDLController.render();
 
-		game_table.printTable(gamemode);
+		if (SDLController.getLastChosenColumn() != 0 && player == HUMAN)
+		{
+			chosen_column = SDLController.getLastChosenColumn(); // Gets the column from the player
 
-		if (player == HUMAN) {
-			chosen_column = columnQuestion(player, game_table.getTable()); // Gets the column from the player
+			if (!isColumnFree(chosen_column, game_table.getTable()))
+			{
+				SDLController.setLastChosenColumn(0);
+
+				continue;
+			}
+
 			game_table.setTable(putPiece(game_table.getTable(), chosen_column, &row, player)); // Changes the table according to the chosen column
+			
+			game_table.printTable(gamemode);
+			cout << endl;
+
+			SDLController.setLastChosenColumn(0);
+
+			result = isGameEnded(game_table.getTable(), row, chosen_column, player);
+
+			player = AI;
 		}
-		else if (player == AI) {
+		else if (player == AI)
+		{
 			int bestScore = INT_MIN, bestMove, score;
 
 			for(chosen_column = 1; chosen_column < 8; chosen_column++){
@@ -191,17 +207,17 @@ void GameController::aiGameLoop()
 
 			chosen_column = bestMove;
 			game_table.setTable(putPiece(game_table.getTable(), chosen_column, &row, player));
-			cout << endl << "AI put the piece into the " << chosen_column << ". column" << endl;
-		}
-		else {
-			cout << "Player count is broken!" << endl;
-			break;
+			SDLController.pieceAdded(chosen_column);
+			result = isGameEnded(game_table.getTable(), row, chosen_column, player);
+
+			player = HUMAN;
+
+			game_table.printTable(gamemode);
+			cout << endl;
 		}
 
-		cout << endl;
-
-		result = isGameEnded(game_table.getTable(), row, chosen_column, player);
-	} while (result == CONT); // Checks if the game has ended
+		quit = SDLController.handleEvents();
+	} while (result == CONT && quit); // Checks if the game has ended
 
 	game_table.printTable(gamemode);
 
@@ -211,6 +227,8 @@ void GameController::aiGameLoop()
 	else if (result == HUMAN) { cout << "Player won!" << endl; }
 	else if (result == AI) { cout << "AI won!" << endl; }
 	else { cout << "System Error!" << endl; }
+	
+	return false;
 }
 
 int GameController::minimax(const std::vector<std::vector<int>> Table, int depth, const int player, const int c, int r, int alpha, int beta)

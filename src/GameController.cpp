@@ -8,14 +8,13 @@
 
 using namespace std;
 
-GameController::GameController()
-{
+GameController::GameController() {}
 
-}
-
-bool GameController::p2GameLoop()
+std::tuple<bool, int> GameController::p2GameLoop()
 {
     Game_Table game_table;
+
+	SDLController.setGameMode(PVP);
 
 	bool quit = true;
 
@@ -24,7 +23,7 @@ bool GameController::p2GameLoop()
 	int player = 1, chosen_column = 1, row = 0, result = CONT;
 
 	do {
-		SDLController.render();
+		SDLController.renderGameModes();
 
 		if (SDLController.getLastChosenColumn() != 0) {
 			chosen_column = SDLController.getLastChosenColumn(); // Gets the column from the player
@@ -51,21 +50,19 @@ bool GameController::p2GameLoop()
 				player = 1; // Changes player turn to the first player
 		}
 
-		quit = SDLController.handleEvents();
+		quit = SDLController.handleGameModeEvents();
 	} while (result == CONT && quit); // Checks if the game has ended
 
 	game_table.printTable(gamemode);
 
 	cout << endl;
 
-	if(result == TIE){
-		cout << "it's a tie!" << endl;
-	}
-	else{
-		cout << "Player " << result << " won!" << endl;
+	if (quit) {
+		SDLController.setMenuState(GAMEOVER);
+		return std::make_tuple(true, 0);
 	}
 
-	return false;
+	return std::make_tuple(false, 0);
 }
 
 // Main solver function for solving if the game has ended or not
@@ -152,11 +149,13 @@ std::vector<std::vector<int>> GameController::putPiece(std::vector<std::vector<i
 	return Table;
 }
 
-bool GameController::aiGameLoop()
+std::tuple<bool, int> GameController::aiGameLoop()
 {
     srand(time(NULL));
 
 	Game_Table game_table;
+
+	SDLController.setGameMode(PVA);
 
 	bool quit = true;
 
@@ -165,7 +164,7 @@ bool GameController::aiGameLoop()
 	int player = AI, chosen_column, row = 0, result;
 
 	do {
-		SDLController.render();
+		SDLController.renderGameModes();
 
 		if (SDLController.getLastChosenColumn() != 0 && player == HUMAN)
 		{
@@ -216,19 +215,19 @@ bool GameController::aiGameLoop()
 			cout << endl;
 		}
 
-		quit = SDLController.handleEvents();
+		quit = SDLController.handleGameModeEvents();
 	} while (result == CONT && quit); // Checks if the game has ended
 
 	game_table.printTable(gamemode);
 
 	cout << endl;
 
-	if (result == TIE) { cout << "It's a tie!" << endl; }
-	else if (result == HUMAN) { cout << "Player won!" << endl; }
-	else if (result == AI) { cout << "AI won!" << endl; }
-	else { cout << "System Error!" << endl; }
-	
-	return false;
+	if (quit) {
+		SDLController.setMenuState(GAMEOVER);
+		return std::make_tuple(true, 0);
+	}
+
+	return std::make_tuple(false, 0);
 }
 
 int GameController::minimax(const std::vector<std::vector<int>> Table, int depth, const int player, const int c, int r, int alpha, int beta)
@@ -359,7 +358,4 @@ int GameController::evaluateAdjacents(const int *adjacentPieces, const int playe
     return score;
 }
 
-GameController::~GameController()
-{
-
-}
+GameController::~GameController() {}

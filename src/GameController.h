@@ -2,8 +2,15 @@
 #define __GAMECONTROLLER__
 
 #include <vector>
+#include <tuple>
 #include "Game_Table.h"
 #include "SDLController.h"
+
+#define MAIN 0
+#define VERSUS 1
+#define PVP 2
+#define PVA 3
+#define GAMEOVER 4
 
 class GameController {
 private:
@@ -19,7 +26,7 @@ public:
 
 	GameController(); // Constructor for the class
 
-	bool p2GameLoop(); // Starts game loop, ends when a player loses
+	std::tuple<bool, int> p2GameLoop(); // Starts game loop, ends when a player loses
     
     int isGameEnded(const std::vector<std::vector<int>> Table, const int row, const int column, const int player); // Checks if the game has ended after a move
     
@@ -29,7 +36,7 @@ public:
     
     std::vector <std::vector <int>> putPiece(std::vector<std::vector<int>> Table, const int column, int* row, const int player); // Puts the player's piece into the column they chose
     
-    bool aiGameLoop();
+    std::tuple<bool, int> aiGameLoop();
     
     int minimax(const std::vector<std::vector<int>> Table, int depth, const int player, const int c, int r, int alpha, int beta);
     

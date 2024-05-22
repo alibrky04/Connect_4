@@ -24,8 +24,8 @@
 
 class SDLController {
 private:
-    const int SCREEN_WIDTH = 1120;
-    const int SCREEN_HEIGHT = 960;
+    const int SCREEN_WIDTH = 560;
+    const int SCREEN_HEIGHT = 480;
     const int gameBoardAttributes[4] = {(SCREEN_WIDTH - int(SCREEN_WIDTH / 1.5)) / 2,
                                         (SCREEN_HEIGHT - int(SCREEN_HEIGHT / 1.5)) / 2, 
                                         int(SCREEN_WIDTH / 1.5), int(SCREEN_HEIGHT / 1.5)};
@@ -33,22 +33,22 @@ private:
     const int columnWidth = gameBoardAttributes[W] / COLUMN;
     const int pieceSize = gameBoardAttributes[H] / ROW;
 
-    const int playButtonAttributes[4] = {SCREEN_WIDTH / 2 - int(SCREEN_WIDTH / 4.67 / 2), SCREEN_HEIGHT / 2,
+    const int playButtonAttributes[4] = {int(SCREEN_WIDTH / 2 - SCREEN_WIDTH / 4.67 / 2), int(SCREEN_HEIGHT / 2),
                                          int(SCREEN_WIDTH / 4.67), int(SCREEN_HEIGHT / 19.2)};
 
-    const int exitButtonAttributes[4] = {SCREEN_WIDTH / 2 - int(SCREEN_WIDTH / 4.67 / 2), SCREEN_HEIGHT / 2 + 150,
+    const int exitButtonAttributes[4] = {int(SCREEN_WIDTH / 2 - SCREEN_WIDTH / 4.67 / 2), int(SCREEN_HEIGHT / 2 + SCREEN_HEIGHT/6.4),
                                          int(SCREEN_WIDTH / 4.67), int(SCREEN_HEIGHT / 19.2)};
 
-    const int pvpButtonAttributes[4] = {SCREEN_WIDTH / 2 - int(SCREEN_WIDTH / 2 / 2), SCREEN_HEIGHT / 2,
+    const int pvpButtonAttributes[4] = {int(SCREEN_WIDTH / 2 - SCREEN_WIDTH / 2 / 2), int(SCREEN_HEIGHT / 2),
                                         int(SCREEN_WIDTH / 2), int(SCREEN_HEIGHT / 19.2)};
 
-    const int pvaButtonAttributes[4] = {SCREEN_WIDTH / 2 - int(SCREEN_WIDTH / 2 / 2), SCREEN_HEIGHT / 2 + 150,
+    const int pvaButtonAttributes[4] = {int(SCREEN_WIDTH / 2 - SCREEN_WIDTH / 2 / 2), int(SCREEN_HEIGHT / 2 + SCREEN_HEIGHT/6.4),
                                         int(SCREEN_WIDTH / 2), int(SCREEN_HEIGHT / 19.2)};
 
-    const int rematchButtonAttributes[4] = {SCREEN_WIDTH / 2 - int(SCREEN_WIDTH / 4.67 / 2), SCREEN_HEIGHT / 2,
+    const int rematchButtonAttributes[4] = {int(SCREEN_WIDTH / 2 - SCREEN_WIDTH / 4.67 / 2), int(SCREEN_HEIGHT / 2),
                                             int(SCREEN_WIDTH / 4.67), int(SCREEN_HEIGHT / 19.2)};
 
-    const int mainMenuButtonAttributes[4] = {SCREEN_WIDTH / 2 - int(SCREEN_WIDTH / 4.67 / 2), SCREEN_HEIGHT / 2 + 150,
+    const int mainMenuButtonAttributes[4] = {int(SCREEN_WIDTH / 2 - SCREEN_WIDTH / 4.67 / 2), int(SCREEN_HEIGHT / 2 + SCREEN_HEIGHT/6.4),
                                              int(SCREEN_WIDTH / 4.67), int(SCREEN_HEIGHT / 19.2)};
 
     int lastChosenColumn;

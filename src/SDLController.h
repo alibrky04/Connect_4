@@ -24,8 +24,8 @@
 
 class SDLController {
 private:
-    const int SCREEN_WIDTH = 560;
-    const int SCREEN_HEIGHT = 480;
+    const int SCREEN_WIDTH = 840;
+    const int SCREEN_HEIGHT = 720;
     const int gameBoardAttributes[4] = {(SCREEN_WIDTH - int(SCREEN_WIDTH / 1.5)) / 2,
                                         (SCREEN_HEIGHT - int(SCREEN_HEIGHT / 1.5)) / 2, 
                                         int(SCREEN_WIDTH / 1.5), int(SCREEN_HEIGHT / 1.5)};

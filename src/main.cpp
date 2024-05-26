@@ -25,6 +25,7 @@ int main(int argc, char* argv[])
 
         switch (std::get<1>(linkWithSDL)) {
         case MAIN:
+            gameController.SDLController.playGameMusic();
             gameController.SDLController.renderMenu();
             break;
 

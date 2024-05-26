@@ -24,9 +24,9 @@ bool SDLController::init()
 {
     bool success = true;
 
-    if(SDL_Init( SDL_INIT_VIDEO ) < 0)
+    if(SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) < 0)
     {
-        printf("SDL could not initialize! SDL_Error: %s\n", SDL_GetError());
+        std::cerr << "SDL could not initialize! SDL_Error: " << SDL_GetError() << std::endl;
         success = false;
     }
     else
@@ -51,13 +51,19 @@ bool SDLController::init()
                 int imgFlags = IMG_INIT_PNG;
                 if(!(IMG_Init(imgFlags) & imgFlags))
                 {
-                    printf("SDL_image could not initialize! SDL_image Error: %s\n", IMG_GetError());
+                    std::cerr << "SDL_image could not initialize! SDL_image Error: " << IMG_GetError() << std::endl;
                     success = false;
                 }
 
                 if(TTF_Init() == -1)
                 {
-                    printf("SDL_ttf could not initialize! SDL_ttf Error: %s\n", TTF_GetError());
+                    std::cerr << "SDL_ttf could not initialize! SDL_ttf Error: " << TTF_GetError() << std::endl;
+                    success = false;
+                }
+
+                if(Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048) < 0)
+                {
+                    std::cerr << "SDL_mixer could not initialize! SDL_mixer Error: " << Mix_GetError() << std::endl;
                     success = false;
                 }
             }
@@ -87,6 +93,7 @@ bool SDLController::handleGameModeEvents()
                     if (columnPieceNumber[lastChosenColumn - 1] < ROW)
                     {
                         pieceAdded(lastChosenColumn);
+                        Mix_PlayChannel(-1, dropSound, 0);
                         std::cout << "Player chose column: " << lastChosenColumn << std::endl;
                     }
                 }
@@ -157,16 +164,20 @@ std::tuple<bool, int> SDLController::handleMenuEvents()
             case GAMEOVER:
                 if (mouseX > rematchButtonAttributes[X] && mouseX < rematchButtonAttributes[X] + rematchButtonAttributes[W]) {
                     if (mouseY > rematchButtonAttributes[Y] && mouseY < rematchButtonAttributes[Y] + rematchButtonAttributes[H]) {
-                        resetAttributes();
-                        return std::make_tuple(true, gameMode);
+                        if (!Mix_Playing(1)) {
+                            resetAttributes();
+                            return std::make_tuple(true, gameMode);
+                        }
                     }
                 }
 
                 if (mouseX > mainMenuButtonAttributes[X] && mouseX < mainMenuButtonAttributes[X] + mainMenuButtonAttributes[W]) {
                     if (mouseY > mainMenuButtonAttributes[Y] && mouseY < mainMenuButtonAttributes[Y] + mainMenuButtonAttributes[H]) {
-                        menuState = MAIN;
-                        resetAttributes();
-                        return std::make_tuple(true, MAIN);
+                        if (!Mix_Playing(1)) {
+                            menuState = MAIN;
+                            resetAttributes();
+                            return std::make_tuple(true, MAIN);
+                        }
                     }
                 }
                 break;
@@ -285,6 +296,41 @@ bool SDLController::loadMedia()
         }
     }
 
+    gameMusic = Mix_LoadMUS("sounds/music.wav");
+    if(gameMusic == NULL)
+    {
+        printf( "Failed to load game music! SDL_mixer Error: %s\n", Mix_GetError() );
+        success = false;
+    }
+
+    dropSound = Mix_LoadWAV("sounds/dropSound.wav");
+    if(dropSound == NULL)
+    {
+        printf("Failed to load drop sound effect! SDL_mixer Error: %s\n", Mix_GetError());
+        success = false;
+    }
+    
+    winSound = Mix_LoadWAV("sounds/winSound.wav");
+    if(winSound == NULL)
+    {
+        printf("Failed to load win sound effect! SDL_mixer Error: %s\n", Mix_GetError());
+        success = false;
+    }
+
+    loseSound = Mix_LoadWAV("sounds/loseSound.wav");
+    if(loseSound == NULL)
+    {
+        printf("Failed to load lose sound effect! SDL_mixer Error: %s\n", Mix_GetError());
+        success = false;
+    }
+
+    tieSound = Mix_LoadWAV("sounds/tieSound.wav");
+    if(tieSound == NULL)
+    {
+        printf("Failed to load tie sound effect! SDL_mixer Error: %s\n", Mix_GetError());
+        success = false;
+    }
+
     return success;
 }
 
@@ -338,7 +384,8 @@ void SDLController::renderCursor()
 
 void SDLController::renderMenuButtons()
 {
-    SDL_Rect playButton, exitButton, pvpButton, pvaButton, rematchButton, mainMenuButton;
+    SDL_Rect playButton, exitButton, pvpButton, pvaButton, rematchButton, mainMenuButton, whoWonTextRect;
+    SDL_Color textColor = { 0, 0, 0 };
 
     switch (menuState) {
     case MAIN:
@@ -364,14 +411,36 @@ void SDLController::renderMenuButtons()
         break;
     
     case GAMEOVER:
+        switch (gameMode) {
+        case PVP:
+            if (pieceCounter == COLUMN * ROW) {whoWonText = loadFromRenderedText("It's a Tie!", textColor);}
+            else if (pieceCounter % 2 != 0) {whoWonText = loadFromRenderedText("Player 1 Won!", textColor);}
+            else {whoWonText = loadFromRenderedText("Player 2 Won!", textColor);}
+            break;
+
+        case PVA:
+            if (pieceCounter == COLUMN * ROW) {whoWonText = loadFromRenderedText("It's a Tie!", textColor);}
+            else if (pieceCounter % 2 != 0){whoWonText = loadFromRenderedText("AI Won!", textColor);}
+            else {whoWonText = loadFromRenderedText("Player Won!", textColor);}
+            break;
+        
+        default:
+            std::cerr << "System Error!" << std::endl;
+            break;
+        }
+
         rematchButton = {rematchButtonAttributes[X], rematchButtonAttributes[Y],
                          rematchButtonAttributes[W], rematchButtonAttributes[H]};
 
         mainMenuButton = {mainMenuButtonAttributes[X], mainMenuButtonAttributes[Y],
                           mainMenuButtonAttributes[W], mainMenuButtonAttributes[H]};
 
+        whoWonTextRect = {whoWonTextAttributes[X], whoWonTextAttributes[Y],
+                          whoWonTextAttributes[W], whoWonTextAttributes[H]};
+
         SDL_RenderCopy(renderer, rematchText, NULL, &rematchButton);
         SDL_RenderCopy(renderer, mainMenuText, NULL, &mainMenuButton);
+        SDL_RenderCopy(renderer, whoWonText, NULL, &whoWonTextRect);
         break;
     
     default:
@@ -425,6 +494,42 @@ void SDLController::resetAttributes()
     }
 }
 
+void SDLController::playGameMusic()
+{
+    if (Mix_PlayingMusic() == 0 && menuState != GAMEOVER)
+    {
+        Mix_PlayMusic(gameMusic, -1);
+        Mix_VolumeMusic(MIX_MAX_VOLUME / 4);
+    }
+}
+
+void SDLController::stopGameMusic()
+{
+    if (Mix_PlayingMusic() == 1) {Mix_HaltMusic();}
+}
+
+void SDLController::playGameOverSound()
+{
+    if (Mix_PlayingMusic() == 1) {Mix_HaltMusic();}
+
+    switch (gameMode) {
+    case PVP:
+        if (pieceCounter < COLUMN * ROW) {Mix_PlayChannel(1, winSound, 0);}
+        else {Mix_PlayChannel(-1, tieSound, 0);}
+        break;
+
+    case PVA:
+        if (pieceCounter == COLUMN * ROW) {Mix_PlayChannel(1, tieSound, 0);}
+        else if (pieceCounter % 2 != 0) {Mix_PlayChannel(1, loseSound, 0);}
+        else {Mix_PlayChannel(1, winSound, 0);}
+        break;
+    
+    default:
+        std::cerr << "System Error!" << std::endl;
+        break;
+    }
+}
+
 void SDLController::clean()
 {
     SDL_DestroyRenderer(renderer);
@@ -469,6 +574,24 @@ void SDLController::clean()
     SDL_DestroyTexture(mainMenuText);
     mainMenuText = NULL;
 
+    SDL_DestroyTexture(whoWonText);
+    whoWonText = NULL;
+
+    Mix_Music* gameMusic = NULL;
+
+    Mix_FreeChunk(dropSound);
+    Mix_FreeChunk(winSound);
+    Mix_FreeChunk(loseSound);
+    Mix_FreeChunk(tieSound);
+    dropSound = NULL;
+    winSound = NULL;
+    loseSound = NULL;
+    tieSound = NULL;
+
+    Mix_FreeMusic(gameMusic);
+    gameMusic = NULL;
+
+    Mix_Quit();
     TTF_Quit();
     IMG_Quit();
     SDL_Quit();

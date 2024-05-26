@@ -7,6 +7,7 @@
 #include "SDL2/SDL.h"
 #include "SDL2/SDL_image.h"
 #include "SDL2/SDL_ttf.h"
+#include "SDL2/SDL_mixer.h"
 
 #define COLUMN 7
 #define ROW 6
@@ -36,20 +37,27 @@ private:
     const int playButtonAttributes[4] = {int(SCREEN_WIDTH / 2 - SCREEN_WIDTH / 4.67 / 2), int(SCREEN_HEIGHT / 2),
                                          int(SCREEN_WIDTH / 4.67), int(SCREEN_HEIGHT / 19.2)};
 
-    const int exitButtonAttributes[4] = {int(SCREEN_WIDTH / 2 - SCREEN_WIDTH / 4.67 / 2), int(SCREEN_HEIGHT / 2 + SCREEN_HEIGHT/6.4),
+    const int exitButtonAttributes[4] = {int(SCREEN_WIDTH / 2 - SCREEN_WIDTH / 4.67 / 2),
+                                         int(SCREEN_HEIGHT / 2 + SCREEN_HEIGHT/6.4),
                                          int(SCREEN_WIDTH / 4.67), int(SCREEN_HEIGHT / 19.2)};
 
-    const int pvpButtonAttributes[4] = {int(SCREEN_WIDTH / 2 - SCREEN_WIDTH / 2 / 2), int(SCREEN_HEIGHT / 2),
+    const int pvpButtonAttributes[4] = {int(SCREEN_WIDTH / 2 - SCREEN_WIDTH / 4), int(SCREEN_HEIGHT / 2),
                                         int(SCREEN_WIDTH / 2), int(SCREEN_HEIGHT / 19.2)};
 
-    const int pvaButtonAttributes[4] = {int(SCREEN_WIDTH / 2 - SCREEN_WIDTH / 2 / 2), int(SCREEN_HEIGHT / 2 + SCREEN_HEIGHT/6.4),
+    const int pvaButtonAttributes[4] = {int(SCREEN_WIDTH / 2 - SCREEN_WIDTH / 4),
+                                        int(SCREEN_HEIGHT / 2 + SCREEN_HEIGHT/6.4),
                                         int(SCREEN_WIDTH / 2), int(SCREEN_HEIGHT / 19.2)};
 
     const int rematchButtonAttributes[4] = {int(SCREEN_WIDTH / 2 - SCREEN_WIDTH / 4.67 / 2), int(SCREEN_HEIGHT / 2),
                                             int(SCREEN_WIDTH / 4.67), int(SCREEN_HEIGHT / 19.2)};
 
-    const int mainMenuButtonAttributes[4] = {int(SCREEN_WIDTH / 2 - SCREEN_WIDTH / 4.67 / 2), int(SCREEN_HEIGHT / 2 + SCREEN_HEIGHT/6.4),
+    const int mainMenuButtonAttributes[4] = {int(SCREEN_WIDTH / 2 - SCREEN_WIDTH / 4.67 / 2),
+                                             int(SCREEN_HEIGHT / 2 + SCREEN_HEIGHT/6.4),
                                              int(SCREEN_WIDTH / 4.67), int(SCREEN_HEIGHT / 19.2)};
+    
+    const int whoWonTextAttributes[4] = {int(SCREEN_WIDTH / 2 - SCREEN_WIDTH / 4.67 / 2),
+                                         int(gameBoardAttributes[Y] - columnWidth),
+                                         int(SCREEN_WIDTH / 4.67), int(SCREEN_HEIGHT / 19.2)};
 
     int lastChosenColumn;
     int availableFirstSpotX[COLUMN];
@@ -67,15 +75,21 @@ private:
     SDL_Texture* redPiece = NULL;
     SDL_Texture* cursor = NULL;
     SDL_Texture* mainMenu = NULL;
-    SDL_Rect gamePieces[42];
-
-    TTF_Font* gameFont = NULL;
     SDL_Texture* playText = NULL;
     SDL_Texture* exitText = NULL;
     SDL_Texture* pvpText = NULL;
     SDL_Texture* pvaText = NULL;
     SDL_Texture* rematchText = NULL;
     SDL_Texture* mainMenuText = NULL;
+    SDL_Texture* whoWonText = NULL;
+
+    SDL_Rect gamePieces[42];
+    TTF_Font* gameFont = NULL;
+    Mix_Music* gameMusic = NULL;
+    Mix_Chunk* dropSound = NULL;
+    Mix_Chunk* winSound = NULL;
+    Mix_Chunk* loseSound = NULL;
+    Mix_Chunk* tieSound = NULL;
 public:
     SDLController();
 
@@ -107,6 +121,12 @@ public:
 
     void resetAttributes();
 
+    void playGameMusic();
+
+    void stopGameMusic();
+
+    void playGameOverSound();
+
     void clean();
 
     int getLastChosenColumn();
@@ -119,6 +139,5 @@ public:
 
     ~SDLController();
 };
-
 
 #endif // !__SDLCONTROLLER__

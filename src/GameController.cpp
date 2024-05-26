@@ -15,6 +15,7 @@ std::tuple<bool, int> GameController::p2GameLoop()
     Game_Table game_table;
 
 	SDLController.setGameMode(PVP);
+	SDLController.stopGameMusic();
 
 	bool quit = true;
 
@@ -38,7 +39,7 @@ std::tuple<bool, int> GameController::p2GameLoop()
 			game_table.setTable(putPiece(game_table.getTable(), chosen_column, &row, player)); // Changes the table according to the chosen column
 			
 			game_table.printTable(gamemode);
-			cout << endl;
+			std::cout << endl;
 
 			SDLController.setLastChosenColumn(0);
 
@@ -55,9 +56,10 @@ std::tuple<bool, int> GameController::p2GameLoop()
 
 	game_table.printTable(gamemode);
 
-	cout << endl;
+	std::cout << endl;
 
 	if (quit) {
+		SDLController.playGameOverSound();
 		SDLController.setMenuState(GAMEOVER);
 		return std::make_tuple(true, 0);
 	}
@@ -115,11 +117,11 @@ int GameController::columnQuestion(const int player, const std::vector<std::vect
     int column_choice;
 
 	do {
-		cout << "Where would you want to drop your piece? You are player " << player << endl;
-		cout << "Your Choice: ";
+		std::cout << "Where would you want to drop your piece? You are player " << player << endl;
+		std::cout << "Your Choice: ";
 		cin >> column_choice;
 		if (!isColumnFree(column_choice, Table)) {
-			cout << endl << column_choice << ". column is full!" << endl << endl;
+			std::cout << endl << column_choice << ". column is full!" << endl << endl;
 		}
 	} while (!isColumnFree(column_choice, Table));
 
@@ -156,6 +158,7 @@ std::tuple<bool, int> GameController::aiGameLoop()
 	Game_Table game_table;
 
 	SDLController.setGameMode(PVA);
+	SDLController.stopGameMusic();
 
 	bool quit = true;
 
@@ -180,7 +183,7 @@ std::tuple<bool, int> GameController::aiGameLoop()
 			game_table.setTable(putPiece(game_table.getTable(), chosen_column, &row, player)); // Changes the table according to the chosen column
 			
 			game_table.printTable(gamemode);
-			cout << endl;
+			std::cout << endl;
 
 			SDLController.setLastChosenColumn(0);
 
@@ -212,7 +215,7 @@ std::tuple<bool, int> GameController::aiGameLoop()
 			player = HUMAN;
 
 			game_table.printTable(gamemode);
-			cout << endl;
+			std::cout << endl;
 		}
 
 		quit = SDLController.handleGameModeEvents();
@@ -223,6 +226,7 @@ std::tuple<bool, int> GameController::aiGameLoop()
 	cout << endl;
 
 	if (quit) {
+		SDLController.playGameOverSound();
 		SDLController.setMenuState(GAMEOVER);
 		return std::make_tuple(true, 0);
 	}

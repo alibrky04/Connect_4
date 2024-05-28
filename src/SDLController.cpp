@@ -11,6 +11,7 @@ SDLController::SDLController()
     mouseColumn = 0;
     menuState = 0;
     gameMode = 2;
+    whichButton = -1;
 
     for (int i = 0; i < COLUMN; i++)
     {
@@ -84,18 +85,14 @@ bool SDLController::handleGameModeEvents()
             int mouseX = e.button.x;
             int mouseY = e.button.y;
 
-            if (mouseX > gameBoardAttributes[X] && mouseX < gameBoardAttributes[X] + gameBoardAttributes[W])
-            {
-                if (mouseY > gameBoardAttributes[Y] && mouseY < gameBoardAttributes[Y] + gameBoardAttributes[H])
-                {
-                    lastChosenColumn = (mouseX - gameBoardAttributes[W] / 4) / columnWidth + 1;
+            if (handleMouseEvent(mouseX, mouseY, gameBoardAttributes)){
+                lastChosenColumn = (mouseX - gameBoardAttributes[W] / 4) / columnWidth + 1;
 
-                    if (columnPieceNumber[lastChosenColumn - 1] < ROW)
-                    {
-                        pieceAdded(lastChosenColumn);
-                        Mix_PlayChannel(-1, dropSound, 0);
-                        std::cout << "Player chose column: " << lastChosenColumn << std::endl;
-                    }
+                if (columnPieceNumber[lastChosenColumn - 1] < ROW)
+                {
+                    pieceAdded(lastChosenColumn);
+                    Mix_PlayChannel(-1, dropSound, 0);
+                    std::cout << "Player chose column: " << lastChosenColumn << std::endl;
                 }
             }
         }
@@ -104,13 +101,10 @@ bool SDLController::handleGameModeEvents()
         mouseColumn = -1;
         Uint32 mouseState = SDL_GetMouseState(&mouseX, &mouseY);
         if(mouseY > gameBoardAttributes[Y] && mouseY < gameBoardAttributes[Y] + gameBoardAttributes[H]){
-            if (mouseX > gameBoardAttributes[X] && mouseX < gameBoardAttributes[X] + columnWidth) {mouseColumn = 0;}
-            else {
-                for (int i = 1; i < COLUMN; i++) {
-                    if (mouseX > gameBoardAttributes[X] && mouseX < gameBoardAttributes[X] + (i+1) * columnWidth) {
-                        mouseColumn = i;
-                        break;
-                    }
+            for (int i = 0; i < COLUMN; i++) {
+                if (mouseX > gameBoardAttributes[X] && mouseX < gameBoardAttributes[X] + (i + 1) * columnWidth) {
+                    mouseColumn = i;
+                    break;
                 }
             }
         }       
@@ -131,53 +125,38 @@ std::tuple<bool, int> SDLController::handleMenuEvents()
             
             switch (menuState) {
             case MAIN:
-                if (mouseX > playButtonAttributes[X] && mouseX < playButtonAttributes[X] + playButtonAttributes[W]) {
-                    if (mouseY > playButtonAttributes[Y] && mouseY < playButtonAttributes[Y] + playButtonAttributes[H]) {
-                        menuState = VERSUS;
-                        return std::make_tuple(true, MAIN);
-                    }
+                if (handleMouseEvent(mouseX, mouseY, playButtonAttributes)){
+                    menuState = VERSUS;
+                    return std::make_tuple(true, MAIN);
                 }
-
-                if (mouseX > exitButtonAttributes[X] && mouseX < exitButtonAttributes[X] + exitButtonAttributes[W]) {
-                    if (mouseY > exitButtonAttributes[Y] && mouseY < exitButtonAttributes[Y] + exitButtonAttributes[H]) {
-                        return std::make_tuple(false, MAIN);
-                    }
+                if (handleMouseEvent(mouseX, mouseY, exitButtonAttributes)){
+                    return std::make_tuple(false, MAIN);
                 }
                 break;
 
             case VERSUS:
-                if (mouseX > pvpButtonAttributes[X] && mouseX < pvpButtonAttributes[X] + pvpButtonAttributes[W]) {
-                    if (mouseY > pvpButtonAttributes[Y] && mouseY < pvpButtonAttributes[Y] + pvpButtonAttributes[H]) {
-                        menuState = PVP;
-                        return std::make_tuple(true, PVP);
-                    }
+                if (handleMouseEvent(mouseX, mouseY, pvpButtonAttributes)){
+                    menuState = PVP;
+                    return std::make_tuple(true, PVP);
                 }
-
-                if (mouseX > pvaButtonAttributes[X] && mouseX < pvaButtonAttributes[X] + pvaButtonAttributes[W]) {
-                    if (mouseY > pvaButtonAttributes[Y] && mouseY < pvaButtonAttributes[Y] + pvaButtonAttributes[H]) {
-                        menuState = PVA;
-                        return std::make_tuple(true, PVA);
-                    }
+                if (handleMouseEvent(mouseX, mouseY, pvaButtonAttributes)){
+                    menuState = PVA;
+                    return std::make_tuple(true, PVA);
                 }
                 break;
 
             case GAMEOVER:
-                if (mouseX > rematchButtonAttributes[X] && mouseX < rematchButtonAttributes[X] + rematchButtonAttributes[W]) {
-                    if (mouseY > rematchButtonAttributes[Y] && mouseY < rematchButtonAttributes[Y] + rematchButtonAttributes[H]) {
-                        if (!Mix_Playing(1)) {
-                            resetAttributes();
-                            return std::make_tuple(true, gameMode);
-                        }
+                if (handleMouseEvent(mouseX, mouseY, rematchButtonAttributes)){
+                    if (!Mix_Playing(1)) {
+                        resetAttributes();
+                        return std::make_tuple(true, gameMode);
                     }
                 }
-
-                if (mouseX > mainMenuButtonAttributes[X] && mouseX < mainMenuButtonAttributes[X] + mainMenuButtonAttributes[W]) {
-                    if (mouseY > mainMenuButtonAttributes[Y] && mouseY < mainMenuButtonAttributes[Y] + mainMenuButtonAttributes[H]) {
-                        if (!Mix_Playing(1)) {
-                            menuState = MAIN;
-                            resetAttributes();
-                            return std::make_tuple(true, MAIN);
-                        }
+                if (handleMouseEvent(mouseX, mouseY, mainMenuButtonAttributes)){
+                    if (!Mix_Playing(1)) {
+                        menuState = MAIN;
+                        resetAttributes();
+                        return std::make_tuple(true, MAIN);
                     }
                 }
                 break;
@@ -186,6 +165,35 @@ std::tuple<bool, int> SDLController::handleMenuEvents()
                 std::cerr << "There is an error with the window state!" << std::endl;
                 break;
             }
+        }
+
+        int mouseX, mouseY;
+        mouseColumn = -1;
+        Uint32 mouseState = SDL_GetMouseState(&mouseX, &mouseY);
+
+        switch (menuState) {
+            case MAIN:
+                if (handleMouseEvent(mouseX, mouseY, playButtonAttributes)) {whichButton = 0;}
+                else if (handleMouseEvent(mouseX, mouseY, exitButtonAttributes)) {whichButton = 1;}
+                else {whichButton = -1;}
+                break;
+
+            case VERSUS:
+                if (handleMouseEvent(mouseX, mouseY, pvpButtonAttributes)) {whichButton = 2;}
+                else if (handleMouseEvent(mouseX, mouseY, pvaButtonAttributes)) {whichButton = 3;}
+                else {whichButton = -1;}
+                break;
+
+            case GAMEOVER:
+                if (handleMouseEvent(mouseX, mouseY, rematchButtonAttributes)) {whichButton = 4;}
+                else if (handleMouseEvent(mouseX, mouseY, mainMenuButtonAttributes)) {whichButton = 5;}
+                else {whichButton = -1;}
+                break;
+            
+            default:
+                whichButton = -1;
+                std::cerr << "There is an error with the window state!" << std::endl;
+                break;
         }
     }
     return std::make_tuple(true, MAIN);
@@ -230,6 +238,7 @@ bool SDLController::loadMedia()
     yellowPiece = loadTexture("images/connect4_tiles(yellow).png");
     redPiece = loadTexture("images/connect4_tiles(red).png");
     cursor = loadTexture("images/cursor.png");
+    cursorRotated = loadTexture("images/cursorRotated.png");
     mainMenu = loadTexture("images/main_menu.png");
 
     if (gameBoard == NULL) {
@@ -252,6 +261,12 @@ bool SDLController::loadMedia()
         std::cerr << "Failed to load main menu texture!" << std::endl;
         success = false;
     }
+    else if (cursorRotated == NULL)
+    {
+        std::cerr << "Failed to load cursor rotated texture!" << std::endl;
+        success = false;
+    }
+    
 
     gameFont = TTF_OpenFont("fonts/PressStart2P-Regular.ttf", 28);
 
@@ -384,8 +399,14 @@ void SDLController::renderCursor()
 
 void SDLController::renderMenuButtons()
 {
-    SDL_Rect playButton, exitButton, pvpButton, pvaButton, rematchButton, mainMenuButton, whoWonTextRect;
+    SDL_Rect playButton, exitButton, pvpButton, pvaButton, rematchButton, mainMenuButton, whoWonTextRect, cursorRotatedRect;
     SDL_Color textColor = { 0, 0, 0 };
+
+    int cursorX, cursorY;
+    const int cursorWidth = pieceSize / 2;
+    const int cursorHeight = pieceSize / 2;
+    
+    SDL_Rect rematchButtonFillRect, mainMenuButtonFillRect;
 
     switch (menuState) {
     case MAIN:
@@ -394,6 +415,21 @@ void SDLController::renderMenuButtons()
 
         exitButton =    {exitButtonAttributes[X], exitButtonAttributes[Y],
                         exitButtonAttributes[W], exitButtonAttributes[H]};
+
+        if (whichButton == 0) {
+            cursorX = playButtonAttributes[X] - cursorWidth;
+            cursorY = playButtonAttributes[Y] + int(playButtonAttributes[H] / 32);
+        }
+        else if (whichButton == 1)
+        {
+            cursorX = exitButtonAttributes[X] - cursorWidth;
+            cursorY = exitButtonAttributes[Y] + int(exitButtonAttributes[H] / 32);
+        }
+
+        cursorRotatedRect = {cursorX, cursorY, cursorWidth, cursorHeight};
+
+        if (whichButton != -1){SDL_RenderCopy(renderer, cursorRotated, NULL, &cursorRotatedRect);}
+        
 
         SDL_RenderCopy(renderer, playText, NULL, &playButton);
         SDL_RenderCopy(renderer, exitText, NULL, &exitButton);
@@ -405,6 +441,20 @@ void SDLController::renderMenuButtons()
 
         pvaButton = {pvaButtonAttributes[X], pvaButtonAttributes[Y],
                     pvaButtonAttributes[W], pvaButtonAttributes[H]};
+
+        if (whichButton == 2) {
+            cursorX = pvpButtonAttributes[X] - cursorWidth;
+            cursorY = pvpButtonAttributes[Y] + int(pvpButtonAttributes[H] / 32);
+        }
+        else if (whichButton == 3)
+        {
+            cursorX = pvaButtonAttributes[X] - cursorWidth;
+            cursorY = pvaButtonAttributes[Y] + int(pvaButtonAttributes[H] / 32);
+        }
+
+        cursorRotatedRect = {cursorX, cursorY, cursorWidth, cursorHeight};
+
+        if (whichButton != -1){SDL_RenderCopy(renderer, cursorRotated, NULL, &cursorRotatedRect);}
 
         SDL_RenderCopy(renderer, pvpText, NULL, &pvpButton);
         SDL_RenderCopy(renderer, pvaText, NULL, &pvaButton);
@@ -437,6 +487,33 @@ void SDLController::renderMenuButtons()
 
         whoWonTextRect = {whoWonTextAttributes[X], whoWonTextAttributes[Y],
                           whoWonTextAttributes[W], whoWonTextAttributes[H]};
+        
+        rematchButtonFillRect = {rematchButtonAttributes[X] - int(rematchButtonAttributes[H] / 2),
+                                 rematchButtonAttributes[Y] - int(rematchButtonAttributes[H] / 2),
+                                 rematchButtonAttributes[W] + rematchButtonAttributes[H],
+                                 rematchButtonAttributes[H] + rematchButtonAttributes[H]};
+        SDL_SetRenderDrawColor(renderer, 255, 255, 255, SDL_ALPHA_OPAQUE);
+        SDL_RenderFillRect(renderer, &rematchButtonFillRect);
+
+        mainMenuButtonFillRect = {mainMenuButtonAttributes[X] - int(mainMenuButtonAttributes[H] / 2),
+                                  mainMenuButtonAttributes[Y] - int(mainMenuButtonAttributes[H] / 2),
+                                  mainMenuButtonAttributes[W] + mainMenuButtonAttributes[H],
+                                  mainMenuButtonAttributes[H] + mainMenuButtonAttributes[H]};
+        SDL_RenderFillRect(renderer, &mainMenuButtonFillRect);
+
+        if (whichButton == 4) {
+            cursorX = rematchButtonAttributes[X] - int((rematchButtonFillRect.w - rematchButtonAttributes[W]) / 2) - cursorWidth;
+            cursorY = rematchButtonAttributes[Y] + int(rematchButtonAttributes[H] / 32);
+        }
+        else if (whichButton == 5)
+        {
+            cursorX = mainMenuButtonAttributes[X] - int((mainMenuButtonFillRect.w - mainMenuButtonAttributes[W]) / 2) - cursorWidth;
+            cursorY = mainMenuButtonAttributes[Y] + int(mainMenuButtonAttributes[H] / 32);
+        }
+
+        cursorRotatedRect = {cursorX, cursorY, cursorWidth, cursorHeight};
+
+        if (whichButton != -1 && !Mix_Playing(1)){SDL_RenderCopy(renderer, cursorRotated, NULL, &cursorRotatedRect);}
 
         SDL_RenderCopy(renderer, rematchText, NULL, &rematchButton);
         SDL_RenderCopy(renderer, mainMenuText, NULL, &mainMenuButton);
@@ -530,6 +607,17 @@ void SDLController::playGameOverSound()
     }
 }
 
+bool SDLController::handleMouseEvent(int mouseX, int mouseY, const int* buttonRectAttributes)
+{
+    SDL_Rect buttonRect = {buttonRectAttributes[X], buttonRectAttributes[Y],
+                           buttonRectAttributes[W], buttonRectAttributes[H]};
+
+    if (mouseX >= buttonRect.x && mouseX <= buttonRect.x + buttonRect.w &&
+        mouseY >= buttonRect.y && mouseY <= buttonRect.y + buttonRect.h) {
+        return true;
+    } else {return false;}
+}
+
 void SDLController::clean()
 {
     SDL_DestroyRenderer(renderer);
@@ -549,6 +637,9 @@ void SDLController::clean()
 
     SDL_DestroyTexture(cursor);
     cursor = NULL;
+
+    SDL_DestroyTexture(cursorRotated);
+    cursorRotated = NULL;
 
     SDL_DestroyTexture(mainMenu);
     mainMenu = NULL;

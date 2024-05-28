@@ -67,6 +67,7 @@ private:
     int mouseColumn;
     int menuState;
     int gameMode;
+    int whichButton;
 
     SDL_Window* window = NULL;
     SDL_Renderer* renderer = NULL;
@@ -74,6 +75,7 @@ private:
     SDL_Texture* yellowPiece = NULL;
     SDL_Texture* redPiece = NULL;
     SDL_Texture* cursor = NULL;
+    SDL_Texture* cursorRotated = NULL;
     SDL_Texture* mainMenu = NULL;
     SDL_Texture* playText = NULL;
     SDL_Texture* exitText = NULL;
@@ -126,6 +128,8 @@ public:
     void stopGameMusic();
 
     void playGameOverSound();
+    
+    bool handleMouseEvent(int mouseX, int mouseY, const int* buttonRect);
 
     void clean();
 

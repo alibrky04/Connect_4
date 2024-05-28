@@ -7,7 +7,13 @@ This is a simple Connect 4 game implemented in C++. Players take turns dropping 
 **Compile the Code:**
 - Ensure you have a C++ compiler installed on your system.
 - Compile the code using the following command:
- 
+
+```markdown
+  makefile
+```
+
+or
+
 ```markdown
   g++ -I src/include -L src/lib -o main src/main.cpp src/Game_Table.cpp src/GameController.cpp src/SDLController.cpp -lmingw32 -lSDL2main -lSDL2 -lSDL2_image -lSDL2_ttf -lSDL2_mixer
 ```
@@ -20,13 +26,13 @@ This is a simple Connect 4 game implemented in C++. Players take turns dropping 
 ```
 
 **Gameplay:**
-- Players will take turns entering the column number where they want to drop their disc.
+- Players will take turns selecting the column where they want to drop their disc.
 - The game will display the updated grid after each move.
 - The first player to connect four discs in a row wins the game.
 
 ## Features
 
-- **Simple and Intuitive Interface:** The game has a straightforward console interface for ease of use.
+- **Simple and Intuitive Interface:** The game has a straightforward GUI for ease of use.
 - **Two-Player Mode:** Play against a friend on the same computer.
 - **AI Mode** Play against a AI that will challenge you to a medium level difficulty battle.
 - **Winning Conditions:** The game detects and announces the winner when four discs are connected.
@@ -43,9 +49,4 @@ This is a simple Connect 4 game implemented in C++. Players take turns dropping 
 
 ## Contributing
 
-If you would like to contribute to this project, feel free to fork the repository and submit a pull request. Bug reports and suggestions are also welcome!
-
-**WARNING!**
-
-This project is still work-in-process. Because of this, there can be a lot of bugs or missing features!
-
+If you would like to contribute to this project, feel free to fork the repository and submit a pull request. Bug reports and suggestions are also welcomed!

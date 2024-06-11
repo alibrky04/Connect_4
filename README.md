@@ -15,14 +15,14 @@ This is a simple Connect 4 game implemented in C++. Players take turns dropping 
 or
 
 ```markdown
-  g++ -I src/include -L src/lib -o main src/main.cpp src/Game_Table.cpp src/GameController.cpp src/SDLController.cpp -lmingw32 -lSDL2main -lSDL2 -lSDL2_image -lSDL2_ttf -lSDL2_mixer
+  g++ -I src/include -L src/lib -o Connect4 src/main.cpp src/Game_Table.cpp src/GameController.cpp src/SDLController.cpp -lmingw32 -lSDL2main -lSDL2 -lSDL2_image -lSDL2_ttf -lSDL2_mixer
 ```
 
 **Run the Game:**
 - Execute the compiled program:
 
 ```markdown
-  ./main
+  ./Connect4
 ```
 
 **Gameplay:**

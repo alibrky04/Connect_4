@@ -40,11 +40,11 @@ or
 ## Code Structure
 
 - **main.cpp:** Main C++ source code starting the game loop.
-- **Game_Table.h:** Header file containing the Game_Table class and its methods.
+- **Game_Table.hpp:** Header file containing the Game_Table class and its methods.
 - **Game_Table.cpp:** Source file containing Game_Table class implementation.
-- **GameController.h** Header file containing the GameController class and its methods.
+- **GameController.hpp** Header file containing the GameController class and its methods.
 - **GameController.cpp** Source file containing GameController class implementation.
-- **SDLController.h** Header file containing the SDLController class and its methods.
+- **SDLController.hpp** Header file containing the SDLController class and its methods.
 - **SDLController.cpp** Source file containing SDLController class implementation.
 
 ## Contributing

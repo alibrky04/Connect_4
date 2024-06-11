@@ -2,9 +2,9 @@
 #include <vector>
 #include <cstdlib>
 #include <ctime>
-#include "Game_Table.h"
-#include "GameController.h"
-#include "SDLController.h"
+#include "Game_Table.hpp"
+#include "GameController.hpp"
+#include "SDLController.hpp"
 
 using namespace std;
 

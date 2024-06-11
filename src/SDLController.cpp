@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include "SDL2/SDL.h"
-#include "SDLController.h"
-#include "GameController.h"
+#include "SDLController.hpp"
+#include "GameController.hpp"
 #include <SDL2/SDL_image.h>
 
 SDLController::SDLController()

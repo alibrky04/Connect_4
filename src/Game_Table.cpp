@@ -1,6 +1,6 @@
 #include <iostream>
 #include <vector>
-#include "Game_Table.h"
+#include "Game_Table.hpp"
 
 #define ROW 6
 #define COLUMN 7

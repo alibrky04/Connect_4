@@ -3,7 +3,7 @@
 #include <iostream>
 #include <unistd.h> 
 #include <tuple>
-#include "GameController.h"
+#include "GameController.hpp"
 
 #define MAIN 0
 #define VERSUS 1

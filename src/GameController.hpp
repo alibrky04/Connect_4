@@ -3,8 +3,8 @@
 
 #include <vector>
 #include <tuple>
-#include "Game_Table.h"
-#include "SDLController.h"
+#include "Game_Table.hpp"
+#include "SDLController.hpp"
 
 #define MAIN 0
 #define VERSUS 1
